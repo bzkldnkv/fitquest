@@ -1,0 +1,210 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FitQuest — Тренер</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0d1321;color:#e8ecf4;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:26px;margin-bottom:4px}
+.sub{color:#8fa3c8;font-size:14px}
+.card{background:#161d2f;border:1px solid #26304d;border-radius:14px;padding:16px;margin-top:14px}
+.muted{color:#8fa3c8;font-size:13px}
+.btn{background:#4c7dff;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer;font-weight:600}
+.btn.ghost{background:#232c47;color:#d6deee}
+.btn.danger{background:#e5484d}
+.btn.ok{background:#2ea56a}
+.btn.sm{padding:6px 12px;font-size:13px}
+input,textarea,select{width:100%;background:#0e1524;border:1px solid #2c3a55;border-radius:10px;padding:10px;color:#e8ecf4;font-size:15px;margin-top:6px}
+label{display:block;font-size:13px;color:#8fa3c8;margin-top:10px}
+.row{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap}
+.bar{background:#0e1524;border-radius:8px;height:12px;overflow:hidden;margin-top:6px}
+.bar>i{display:block;height:100%;background:#4c7dff;border-radius:8px}
+.bar.g>i{background:#2ea56a}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.b-pending{background:#4b3a12;color:#ffd166}
+.b-ok{background:#123f2c;color:#5fd39a}
+.b-no{background:#43161a;color:#ff8b90}
+.tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tab{background:#232c47;border:none;color:#d6deee;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px}
+.tab.on{background:#4c7dff;color:#fff}
+.q{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #232c47}
+.q:last-child{border-bottom:none}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.mwrap{position:fixed;inset:0;background:rgba(5,8,16,.75);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.mcard{background:#161d2f;border:1px solid #2c3a5f;border-radius:16px;padding:20px;max-width:460px;width:100%}
+.err{border-color:#e5484d;color:#ff8b90}
+.flash{background:#123f2c;color:#5fd39a;border-radius:10px;padding:10px 14px;margin-top:12px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #232c47}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#0e1524;padding:8px 10px;border-radius:8px;word-break:break-all;margin-top:8px}
+.link{color:#7fa7ff;text-decoration:none}
+</style></head><body>
+<div id="app"></div>
+<div id="modalWrap" class="mwrap"><div class="mcard" id="modalCard"></div></div>
+<script>
+seed();
+
+function qsel(id){return document.getElementById(id)}
+function load(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(s){return String(s===null||s===undefined?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]})}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function yesterday(){var d=new Date(Date.now()-86400000);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function users(){return load('fq_users',[])}
+function me(){var s=load('fq_session',null);if(!s)return null;return users().find(function(x){return x.u===s})||null}
+function logout(){save('fq_session',null);render()}
+function cdata(u){return load('fq_c_'+u,{xp:0,streak:0,lastDone:'',steps:0,sthist:[],blockDone:0,discount:10})}
+function saveC(u,c){save('fq_c_'+u,c)}
+function pushChat(clientU,from,text){var k='fq_chat_'+clientU;var ch=load(k,[]);ch.push({from:from,text:text,ts:Date.now()});save(k,ch)}
+var _flash='';
+function flash(t){_flash=t;render()}
+function openModal(title,html){var w=qsel('modalWrap');qsel('modalCard').innerHTML='<h3>'+esc(title)+'</h3>'+html+'<div class="row"><button class="btn ghost" onclick="closeModal()">Отмена</button></div>';w.style.display='flex'}
+function closeModal(){qsel('modalWrap').style.display='none';qsel('modalCard').innerHTML=''}
+function copyText(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}try{navigator.clipboard.writeText(t)}catch(e){}document.body.removeChild(ta);flash('Скопировано')}
+function seed(){var u=users();if(u.length===0){u.push({u:'trainer',p:'1234',role:'trainer',name:'Демо-тренер',code:'FIT-7K2Q'});u.push({u:'client',p:'1234',role:'client',name:'Демо-клиент',trainer:'trainer'});save('fq_users',u)}}
+function authBlock(kind){return '<div class="wrap"><h1>FitQuest</h1><div class="sub">'+(kind==='client'?'Приложение клиента':'Кабинет тренера')+'</div>'+
+'<div class="row" style="margin-top:16px"><button class="btn sm '+(authTab==='login'?'':'ghost')+'" onclick="authTab=\'login\';render()">Вход</button>'+
+'<button class="btn sm '+(authTab==='reg'?'':'ghost')+'" onclick="authTab=\'reg\';render()">Регистрация</button></div><div id="authForm"></div></div>'}
+var authTab='login';
+window.addEventListener('click',function(e){var w=qsel('modalWrap');if(w&&e.target===w)closeModal()});
+
+var tab='clients',chatSel='';
+function lvlNum(xp){return Math.min(7,1+Math.floor(xp/100))}
+var LVL=['','Новичок','Ученик','Боец','Атлет','Воин','Легенда','Титан'];
+var REPMAP={breakfast:'Завтрак',lunch:'Обед',dinner:'Ужин',water:'Вода',steps:'Шаги',training:'Тренировка'};
+
+function myClients(){var m=me();return users().filter(function(x){return x.role==='client'&&x.trainer===m.u})}
+function myReports(st){var cs=myClients().map(function(c){return c.u});return load('fq_reports',[]).filter(function(r){return cs.indexOf(r.client)>=0&&(!st||r.status===st)}).sort(function(a,b){return b.ts-a.ts})}
+function myPurchases(st){var cs=myClients().map(function(c){return c.u});return load('fq_purchases',[]).filter(function(p){return cs.indexOf(p.client)>=0&&(!st||p.status===st)}).sort(function(a,b){return b.ts-a.ts})}
+
+function render(){try{var m=me();if(!m){renderAuth();return}
+if(tab==='reports')renderReports();else if(tab==='purchases')renderPurchases();else if(tab==='chat')renderChat();else if(tab==='challenge')renderChallenge();else renderClients()}
+catch(e){qsel('app').innerHTML='<div class="wrap"><div class="card err">Ошибка: '+esc(e.message)+'</div></div>'}}
+
+function renderAuth(){var h=authBlock('trainer');qsel('app').innerHTML=h;
+if(authTab==='login'){qsel('authForm').innerHTML='<div class="card"><label>Логин</label><input id="lLogin"><label>Пароль</label><input id="lPass" type="password"><div class="row"><button class="btn" onclick="doLogin()">Войти</button></div><div class="muted" style="margin-top:10px">Демо: trainer / 1234</div></div>'}
+else{qsel('authForm').innerHTML='<div class="card"><label>Имя</label><input id="rName"><label>Логин</label><input id="rLogin"><label>Пароль</label><input id="rPass" type="password"><div class="row"><button class="btn" onclick="doReg()">Создать аккаунт тренера</button></div></div>'}}
+
+function doLogin(){var u=qsel('lLogin').value.trim(),p=qsel('lPass').value;
+var f=users().find(function(x){return x.u===u&&x.p===p&&x.role==='trainer'});
+if(!f){flash('Неверный логин или пароль');return}
+save('fq_session',u);_flash='';render()}
+
+function doReg(){var n=qsel('rName').value.trim(),u=qsel('rLogin').value.trim(),p=qsel('rPass').value;
+if(!n||!u||!p){flash('Заполните все поля');return}
+var us=users();if(us.some(function(x){return x.u===u})){flash('Такой логин уже занят');return}
+var code='FIT-'+Math.random().toString(36).slice(2,6).toUpperCase();
+us.push({u:u,p:p,role:'trainer',name:n,code:code});save('fq_users',us);
+save('fq_session',u);_flash='Аккаунт создан. Ваш код приглашения: '+code;render()}
+
+function tabsBar(){return '<div class="tabs"><button class="tab '+(tab==='clients'?'on':'')+'" onclick="tab=\'clients\';render()">Клиенты</button>'+
+'<button class="tab '+(tab==='reports'?'on':'')+'" onclick="tab=\'reports\';render()">Отчёты ('+myReports('pending').length+')</button>'+
+'<button class="tab '+(tab==='purchases'?'on':'')+'" onclick="tab=\'purchases\';render()">Покупки ('+myPurchases('pending').length+')</button>'+
+'<button class="tab '+(tab==='chat'?'on':'')+'" onclick="tab=\'chat\';render()">Чат</button>'+
+'<button class="tab '+(tab==='challenge'?'on':'')+'" onclick="tab=\'challenge\';render()">Челлендж</button></div>'}
+
+function riskOf(u){var reps=load('fq_reports',[]).filter(function(r){return r.client===u&&r.status==='approved'});
+if(!reps.length)return true;var last=reps.reduce(function(a,r){return r.date>a?r.date:a},'');
+return last<today()&&last<yesterday()}
+
+function avgSteps(c){if(!(c.sthist||[]).length)return 0;var s=c.sthist.reduce(function(a,x){return a+x.v},0);return Math.round(s/c.sthist.length)}
+
+function renderClients(){var m=me(),cs=myClients(),s=load('fq_settings',{});
+var h='<div class="wrap"><div class="top"><div><b>'+esc(m.name)+'</b><div class="sub">Код приглашения: <b>'+esc(m.code)+'</b> <button class="btn ghost sm" onclick="copyText(\''+esc(m.code)+'\')">Скопировать</button></div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
+if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
+h+=tabsBar();
+h+='<div class="card"><b>Создать клиента</b><label>Имя клиента</label><input id="cName"><label>Логин</label><input id="cLogin"><label>Пароль (придумайте и передайте клиенту)</label><input id="cPass"><div class="row"><button class="btn" onclick="createClient()">Создать аккаунт</button></div>'+
+'<label style="margin-top:16px">Имя файла приложения клиента (какой файл он скачает)</label><input id="cFile" value="'+esc(s.clientFile||'klient.html')+'" onchange="saveSettings()"></div>';
+if(cs.length){cs.forEach(function(cl){var c=cdata(cl.u);
+var link=dir()+(s.clientFile||'klient.html')+'?invite='+encodeURIComponent(m.code)+'&login='+encodeURIComponent(cl.u);
+h+='<div class="card"><div class="top"><div><b>'+esc(cl.name)+'</b> <span class="muted">@'+esc(cl.u)+'</span></div>'+(riskOf(cl.u)?'<span class="badge b-no">риск отвала</span>':'<span class="badge b-ok">в строю</span>')+'</div>'+
+'<div class="row muted">Уровень '+lvlNum(c.xp)+' ('+LVL[lvlNum(c.xp)]+') · '+c.xp+' XP · серия '+c.streak+' · блок '+c.blockDone+'/42 · скидка '+c.discount+'% · шаги в среднем '+avgSteps(c)+'</div>'+
+'<div class="mono">'+esc(link)+'</div>'+
+'<div class="row"><button class="btn sm ghost" onclick="copyText(document.getElementById(\'lnk_'+cl.u+'\').textContent)">Скопировать ссылку</button><button class="btn sm" onclick="chatSel=\''+cl.u+'\';tab=\'chat\';render()">Чат</button></div><span id="lnk_'+cl.u+'" style="display:none">'+esc(link)+'</span></div>'})}
+else h+='<div class="card muted">Клиентов пока нет — создайте первого выше.</div>';
+h+='</div>';qsel('app').innerHTML=h}
+
+function saveSettings(){save('fq_settings',{clientFile:qsel('cFile').value.trim()||'klient.html'});flash('Настройка сохранена')}
+
+function dir(){var h=location.href.split('?')[0].split('#')[0].split('/');h.pop();return h.join('/')+'/'}
+
+function createClient(){var n=qsel('cName').value.trim(),u=qsel('cLogin').value.trim(),p=qsel('cPass').value;
+if(!n||!u||!p){flash('Заполните все поля');return}
+var us=users();if(us.some(function(x){return x.u===u})){flash('Такой логин уже занят');return}
+us.push({u:u,p:p,role:'client',name:n,trainer:me().u});save('fq_users',us);
+var link=dir()+(load('fq_settings',{}).clientFile||'klient.html')+'?invite='+encodeURIComponent(me().code)+'&login='+encodeURIComponent(u);
+qsel('cName').value='';qsel('cLogin').value='';qsel('cPass').value='';
+flash('Клиент создан. Ссылка-приглашение ниже');window._lastLink=link;window._lastLogin=u;
+renderClients();
+var card=qsel('app').querySelector('.card');
+if(window._lastLink)qsel('app').innerHTML=qsel('app').innerHTML.replace(tabsBar(),tabsBar()+'<div class="card"><b>Ссылка для '+esc(n)+'</b><div class="mono">'+esc(link)+'</div><div class="row"><button class="btn sm" onclick="copyText(\''+esc(link)+'\')">Скопировать ссылку</button></div><div class="muted">Отправьте её клиенту в мессенджер — он откроет, задаст пароль и сразу попадёт к вам.</div></div>')}
+
+function renderReports(){var reps=myReports('pending');
+var h='<div class="wrap"><div class="top"><div><b>Проверка отчётов</b><div class="sub">В очереди: '+reps.length+'</div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
+if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
+h+=tabsBar();
+if(!reps.length)h+='<div class="card muted">Очередь пуста — все отчёты обработаны.</div>';
+reps.forEach(function(r){var cl=users().find(function(x){return x.u===r.client})||{};
+h+='<div class="card"><b>'+esc(cl.name||r.client)+'</b> · '+REPMAP[r.quest]||r.quest;
+h+='<div class="muted">'+new Date(r.ts).toLocaleString()+' '+(r.file?'· вложение: '+esc(r.file):'')+'</div>';
+h+='<div style="margin-top:8px">'+esc(r.text)+'</div>';
+h+='<div class="row"><button class="btn ok sm" onclick="approve('+r.id+')">✔ Засчитать</button><button class="btn danger sm" onclick="reject('+r.id+')">✘ Отклонить</button></div></div>'});
+h+='</div>';qsel('app').innerHTML=h}
+
+function approve(id){var reps=load('fq_reports',[]),r=reps.find(function(x){return x.id===id});
+if(!r||r.status!=='pending')return;
+r.status='approved';save('fq_reports',reps);
+var c=cdata(r.client);c.xp+=10;c.blockDone=(c.blockDone||0)+1;
+if(c.blockDone>=42){c.blockDone=0;c.discount=15;pushChat(r.client,'trainer','Блок закрыт полностью — скидка на следующий блок теперь 15% 🎉')}
+else{pushChat(r.client,'trainer','Отчёт «'+(REPMAP[r.quest]||r.quest)+'» засчитан: +10 XP')}
+saveC(r.client,c);flash('Засчитано')}
+
+function reject(id){var reps=load('fq_reports',[]),r=reps.find(function(x){return x.id===id});
+if(!r||r.status!=='pending')return;
+var cm=prompt('Причина отклонения (клиент её увидит):','Переделай, пожалуйста');
+if(cm===null)return;
+r.status='rejected';r.comment=cm;save('fq_reports',reps);
+pushChat(r.client,'trainer','Отчёт «'+(REPMAP[r.quest]||r.quest)+'» отклонён: '+cm);flash('Отклонено')}
+
+function renderPurchases(){var ps=myPurchases('pending');
+var h='<div class="wrap"><div class="top"><div><b>Покупки наград</b><div class="sub">В очереди: '+ps.length+'</div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
+if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
+h+=tabsBar();
+if(!ps.length)h+='<div class="card muted">Нет заявок на награды.</div>';
+ps.forEach(function(p){var cl=users().find(function(x){return x.u===p.client})||{};
+h+='<div class="card"><b>'+esc(cl.name||p.client)+'</b> хочет: '+esc(p.title)+' <span class="muted">('+p.cost+' XP)</span>'+
+'<div class="row"><button class="btn ok sm" onclick="approveP('+p.id+')">✔ Подтвердить</button><button class="btn danger sm" onclick="rejectP('+p.id+')">✘ Отказать</button></div></div>'});
+h+='</div>';qsel('app').innerHTML=h}
+
+function approveP(id){var ps=load('fq_purchases',[]),p=ps.find(function(x){return x.id===id});
+if(!p||p.status!=='pending')return;p.status='approved';save('fq_purchases',ps);
+pushChat(p.client,'trainer','Награда подтверждена: '+p.title+'. Корректирую план!');flash('Подтверждено')}
+
+function rejectP(id){var ps=load('fq_purchases',[]),p=ps.find(function(x){return x.id===id});
+if(!p||p.status!=='pending')return;
+var cm=prompt('Причина отказа:','');if(cm===null)return;
+p.status='rejected';p.comment=cm;save('fq_purchases',ps);
+var c=cdata(p.client);c.xp+=p.cost;saveC(p.client,c);
+pushChat(p.client,'trainer','Отказ по награде «'+p.title+'», XP возвращены. '+(cm||''));flash('Отказано, XP возвращены')}
+
+function renderChallenge(){var m=me(),ch=load('fq_challenge_'+m.u,'');
+var h='<div class="wrap"><div class="top"><div><b>Челлендж недели</b></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
+if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
+h+=tabsBar()+'<div class="card"><label>Текст челленджа — увидят все ваши клиенты</label><textarea id="chText" rows="3">'+esc(ch)+'</textarea><div class="row"><button class="btn" onclick="saveCh()">Сохранить</button></div></div></div>';
+qsel('app').innerHTML=h}
+function saveCh(){save('fq_challenge_'+me().u,qsel('chText').value.trim());flash('Челлендж обновлён')}
+
+function renderChat(){var cs=myClients();
+if(!chatSel&&cs.length)chatSel=cs[0].u;
+var h='<div class="wrap"><div class="top"><div><b>Чат с клиентами</b></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
+if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
+h+=tabsBar();
+if(!cs.length){h+='<div class="card muted">Нет клиентов.</div></div>';qsel('app').innerHTML=h;return}
+h+='<div class="row">'+cs.map(function(c){return '<button class="btn sm '+(chatSel===c.u?'':'ghost')+'" onclick="chatSel=\''+c.u+'\';render()">'+esc(c.name)+'</button>'}).join('')+'</div>';
+var ch=load('fq_chat_'+chatSel,[]);
+h+='<div class="card" id="chatBox" style="max-height:50vh;overflow:auto">';
+if(!ch.length)h+='<div class="muted">Пока пусто.</div>';
+ch.forEach(function(x){h+='<div style="margin:8px 0;text-align:'+(x.from==='trainer'?'right':'left')+'"><span class="badge" style="background:'+(x.from==='trainer'?'#2a3a6b':'#2c4a3a')+';color:#d6deee;white-space:normal">'+esc(x.text)+'</span><div class="muted" style="font-size:11px">'+new Date(x.ts).toLocaleTimeString()+'</div></div>'});
+h+='</div><div class="row"><input id="chatIn" placeholder="Сообщение клиенту" style="flex:1;margin-top:0"><button class="btn" onclick="sendTMsg()">Отправить</button></div></div>';
+qsel('app').innerHTML=h;var b=qsel('chatBox');if(b)b.scrollTop=b.scrollHeight}
+function sendTMsg(){var t=qsel('chatIn').value.trim();if(!t||!chatSel)return;pushChat(chatSel,'trainer',t);render()}
+
+render();
+</script></body></html>
