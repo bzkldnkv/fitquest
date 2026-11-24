@@ -1,210 +1,568 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FitQuest — Тренер</title><style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0d1321;color:#e8ecf4;min-height:100vh}
-.wrap{max-width:760px;margin:0 auto;padding:16px}
-h1{font-size:26px;margin-bottom:4px}
-.sub{color:#8fa3c8;font-size:14px}
-.card{background:#161d2f;border:1px solid #26304d;border-radius:14px;padding:16px;margin-top:14px}
-.muted{color:#8fa3c8;font-size:13px}
-.btn{background:#4c7dff;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer;font-weight:600}
-.btn.ghost{background:#232c47;color:#d6deee}
-.btn.danger{background:#e5484d}
-.btn.ok{background:#2ea56a}
-.btn.sm{padding:6px 12px;font-size:13px}
-input,textarea,select{width:100%;background:#0e1524;border:1px solid #2c3a55;border-radius:10px;padding:10px;color:#e8ecf4;font-size:15px;margin-top:6px}
-label{display:block;font-size:13px;color:#8fa3c8;margin-top:10px}
-.row{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap}
-.bar{background:#0e1524;border-radius:8px;height:12px;overflow:hidden;margin-top:6px}
-.bar>i{display:block;height:100%;background:#4c7dff;border-radius:8px}
-.bar.g>i{background:#2ea56a}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.b-pending{background:#4b3a12;color:#ffd166}
-.b-ok{background:#123f2c;color:#5fd39a}
-.b-no{background:#43161a;color:#ff8b90}
-.tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.tab{background:#232c47;border:none;color:#d6deee;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px}
-.tab.on{background:#4c7dff;color:#fff}
-.q{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #232c47}
-.q:last-child{border-bottom:none}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
-.mwrap{position:fixed;inset:0;background:rgba(5,8,16,.75);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
-.mcard{background:#161d2f;border:1px solid #2c3a5f;border-radius:16px;padding:20px;max-width:460px;width:100%}
-.err{border-color:#e5484d;color:#ff8b90}
-.flash{background:#123f2c;color:#5fd39a;border-radius:10px;padding:10px 14px;margin-top:12px;font-size:14px}
-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
-th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #232c47}
-.mono{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#0e1524;padding:8px 10px;border-radius:8px;word-break:break-all;margin-top:8px}
-.link{color:#7fa7ff;text-decoration:none}
-</style></head><body>
-<div id="app"></div>
-<div id="modalWrap" class="mwrap"><div class="mcard" id="modalCard"></div></div>
-<script>
-seed();
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<link rel="manifest" href='data:application/manifest+json,{"name":"trener.html","short_name":"trener.html","start_url":"./trener.html","display":"standalone","background_color":"%%BG%%","theme_color":"#1976d2","icons":[{"src":"data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><rect width=%27100%27 height=%27100%27 rx=%2720%27 fill=%27%231976d2%27/><text x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27>FQ</text></svg>","sizes":"any","type":"image/svg+xml"}]}' />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>FitQuest — Тренер</title><style>
+:root{ --bg:#f2f3f7; --panel:#fff; --text:#1c1e26; --mut:#8a8fa3; --acc:#2962ff; --line:#e6e8ef; --ok:#1a9e55; --red:#d94343; --bar:#2962ff; }
+[data-theme=dark]{ --bg:#0f1117; --panel:#1a1d28; --text:#e8eaf2; --mut:#8a8fa3; --acc:#4f83ff; --line:#262a38; --bar:#4f83ff; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font:15px -apple-system,'Segoe UI',Roboto,sans-serif;}
+header{background:var(--panel);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+header b{font-size:17px;}
+#themeBtn{background:none;border:none;font-size:20px;cursor:pointer;}
+main{max-width:640px;margin:0 auto;padding:14px 14px 80px;}
+h2{font-size:20px;margin:14px 0 10px;}
+label{display:block;font-size:12px;color:var(--mut);margin:8px 0 4px;}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-size:15px;margin-bottom:6px;}
+button{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;margin:4px 6px 4px 0;}
+button.danger{background:var(--red);}
+button.ghost{background:var(--line);color:var(--text);}
+.card{background:var(--panel);border-radius:14px;padding:14px;margin:8px 0;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.panel{background:var(--panel);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.mut{color:var(--mut);font-size:13px;}
+.big{font-size:26px;font-weight:700;}
+.cards4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+.cards4 .card{margin:0;}
+.row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);gap:8px;font-size:14px;cursor:pointer;}
+.row:last-child{border-bottom:none;}
+.row:hover{opacity:.85;}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:8px;background:var(--line);color:var(--mut);}
+.tag.red{background:#fdecea;color:#c0392b;}
+.tag.ok{background:#e6f6ec;color:#1a7f4b;}
+.delta.up{color:var(--ok);font-size:12px;} .delta.down{color:var(--red);font-size:12px;}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0;}
+.bar>div{height:100%;background:var(--bar);border-radius:4px;transition:width .3s;}
+.filters{display:flex;gap:8px;margin:10px 0;align-items:center;}
+.filters input,.filters select{flex:1;margin:0;}
+.tabsm{display:flex;gap:6px;overflow-x:auto;margin:10px 0;padding:4px;background:var(--panel);border-radius:12px;}
+.tabsm span{padding:7px 14px;border-radius:9px;cursor:pointer;font-size:14px;white-space:nowrap;color:var(--mut);}
+.tabsm span.on{background:var(--acc);color:#fff;}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--panel);display:flex;justify-content:space-around;padding:6px 0 10px;box-shadow:0 -2px 8px rgba(0,0,0,.08);z-index:10;}
+.nav span{font-size:11px;cursor:pointer;color:var(--mut);padding:4px 8px;border-radius:8px;text-align:center;}
+.nav span.on{color:var(--acc);font-weight:700;}
+.login{max-width:400px;margin:20px auto;}
+.chat .msgs{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.msg{background:var(--line);border-radius:12px;padding:8px 12px;max-width:85%;align-self:flex-start;font-size:14px;}
+.msg.me{background:var(--acc);color:#fff;align-self:flex-end;}
+.msg.me .mut{color:rgba(255,255,255,.7);}
+.chatrow{display:flex;gap:8px;margin-top:10px;}
+.chatrow input{flex:1;margin:0;}
+.chatrow button{margin:0;padding:10px 14px;}
+.switch{position:relative;display:inline-block;width:44px;height:24px;vertical-align:middle;}
+.switch input{opacity:0;width:0;height:0;}
+.switch i{position:absolute;inset:0;background:var(--line);border-radius:12px;transition:.2s;}
+.switch i:before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;left:3px;top:3px;background:#fff;transition:.2s;}
+.switch input:checked+i{background:var(--ok);}
+.switch input:checked+i:before{left:23px;}
+canvas{max-width:100%;}
+</style></head><body><header><b>trener.html</b><span id="hdrbtns"><button class="ghost" id="logoutBtn" onclick="logout()" style="display:none;padding:6px 12px;">Выйти</button><button id="themeBtn" onclick="cycleTheme()">🌗</button></span></header><main id="app"></main><div class="nav" id="trnav"></div><script>var NAVS=[["dash","📊","Дашборд"],["clients","👥","Клиенты"],["schedule","📅","Расписание"],["checks","✅","Проверки"],["finance","💰","Финансы"],["shop","🎁","Лавка"],["settings","⚙️","Настройки"]];function buildNav(){var n=document.getElementById("trnav");n.innerHTML=NAVS.map(function(x){return '<span data-t="'+x[0]+'" onclick="tab=\''+x[0]+'\';render()">'+x[1]+"<br>"+x[2]+"</span>";}).join("");}window.addEventListener("load",function(){applyTheme();buildNav();if(localStorage.getItem(SESSION_KEY)==="trainer")user="trainer";render();});</script><script>
+/* ===== FitQuest core ===== */
+window.__fq_error = null;
+window.addEventListener('error', function(e){
+  try{
+    var d = document.getElementById('errbox');
+    if(!d){ d = document.createElement('div'); d.id='errbox';
+      d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;font:12px monospace;padding:10px;white-space:pre-wrap;max-height:40vh;overflow:auto;';
+      (document.body||document.documentElement).appendChild(d);}
+    d.textContent += 'ERROR: '+e.message+' @ line '+e.lineno+'\n';
+  }catch(_){}
+});
 
-function qsel(id){return document.getElementById(id)}
-function load(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function esc(s){return String(s===null||s===undefined?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]})}
-function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function yesterday(){var d=new Date(Date.now()-86400000);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function users(){return load('fq_users',[])}
-function me(){var s=load('fq_session',null);if(!s)return null;return users().find(function(x){return x.u===s})||null}
-function logout(){save('fq_session',null);render()}
-function cdata(u){return load('fq_c_'+u,{xp:0,streak:0,lastDone:'',steps:0,sthist:[],blockDone:0,discount:10})}
-function saveC(u,c){save('fq_c_'+u,c)}
-function pushChat(clientU,from,text){var k='fq_chat_'+clientU;var ch=load(k,[]);ch.push({from:from,text:text,ts:Date.now()});save(k,ch)}
-var _flash='';
-function flash(t){_flash=t;render()}
-function openModal(title,html){var w=qsel('modalWrap');qsel('modalCard').innerHTML='<h3>'+esc(title)+'</h3>'+html+'<div class="row"><button class="btn ghost" onclick="closeModal()">Отмена</button></div>';w.style.display='flex'}
-function closeModal(){qsel('modalWrap').style.display='none';qsel('modalCard').innerHTML=''}
-function copyText(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}try{navigator.clipboard.writeText(t)}catch(e){}document.body.removeChild(ta);flash('Скопировано')}
-function seed(){var u=users();if(u.length===0){u.push({u:'trainer',p:'1234',role:'trainer',name:'Демо-тренер',code:'FIT-7K2Q'});u.push({u:'client',p:'1234',role:'client',name:'Демо-клиент',trainer:'trainer'});save('fq_users',u)}}
-function authBlock(kind){return '<div class="wrap"><h1>FitQuest</h1><div class="sub">'+(kind==='client'?'Приложение клиента':'Кабинет тренера')+'</div>'+
-'<div class="row" style="margin-top:16px"><button class="btn sm '+(authTab==='login'?'':'ghost')+'" onclick="authTab=\'login\';render()">Вход</button>'+
-'<button class="btn sm '+(authTab==='reg'?'':'ghost')+'" onclick="authTab=\'reg\';render()">Регистрация</button></div><div id="authForm"></div></div>'}
-var authTab='login';
-window.addEventListener('click',function(e){var w=qsel('modalWrap');if(w&&e.target===w)closeModal()});
+var FIREBASE_CONFIG = { apiKey:"", authDomain:"", databaseURL:"", projectId:"", appId:"" };
+var CFG_KEY='fq_cfg', DATA_KEY='fq_data', SESSION_KEY='fq_session', THEME_KEY='fq_theme';
 
-var tab='clients',chatSel='';
-function lvlNum(xp){return Math.min(7,1+Math.floor(xp/100))}
-var LVL=['','Новичок','Ученик','Боец','Атлет','Воин','Легенда','Титан'];
-var REPMAP={breakfast:'Завтрак',lunch:'Обед',dinner:'Ужин',water:'Вода',steps:'Шаги',training:'Тренировка'};
+var DEF_CFG = {
+  appName:'FitQuest', inviteCode:'FIT2026',
+  discountHalf:10, discountFull:15, blockLen:42,
+  xpTrain:50, xpFood:30, xpHabit:20, streakBonus:20, streakEvery:3,
+  warnDays:5,
+  shop:[{id:'s1',name:'Скидка 5%',cost:200},{id:'s2',name:'Фитнес-браслет',cost:1500},{id:'s3',name:'Бесплатная персоналка',cost:800}],
+  tariffs:[{id:'t1',name:'Индивидуальная',price:2500},{id:'t2',name:'Онлайн',price:1800}]
+};
 
-function myClients(){var m=me();return users().filter(function(x){return x.role==='client'&&x.trainer===m.u})}
-function myReports(st){var cs=myClients().map(function(c){return c.u});return load('fq_reports',[]).filter(function(r){return cs.indexOf(r.client)>=0&&(!st||r.status===st)}).sort(function(a,b){return b.ts-a.ts})}
-function myPurchases(st){var cs=myClients().map(function(c){return c.u});return load('fq_purchases',[]).filter(function(p){return cs.indexOf(p.client)>=0&&(!st||p.status===st)}).sort(function(a,b){return b.ts-a.ts})}
+function load(k,def){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+var CFG = Object.assign({}, DEF_CFG, load(CFG_KEY,{}));
+var DB = load(DATA_KEY,null);
+if(!DB){
+  DB = { users:{ trainer:{role:'trainer',pass:'1234'} }, sessions:[], reports:[], chats:[], events:[], payments:[], purchases:[], measures:[], nextId:1 };
+  seedDemo();
+}
+function uid(){ return 'x'+(DB.nextId++)+'_'+Date.now().toString(36); }
+function saveDB(){ save(DATA_KEY,DB); }
 
-function render(){try{var m=me();if(!m){renderAuth();return}
-if(tab==='reports')renderReports();else if(tab==='purchases')renderPurchases();else if(tab==='chat')renderChat();else if(tab==='challenge')renderChallenge();else renderClients()}
-catch(e){qsel('app').innerHTML='<div class="wrap"><div class="card err">Ошибка: '+esc(e.message)+'</div></div>'}}
+function seedDemo(){
+  DB.users['anna']={role:'client',pass:'1234',name:'Анна Смирнова',phone:'+7 900 111-22-33',code:'FIT2026',joined:Date.now()-86400000*30,notes:'',tags:['похудение'],subUntil:Date.now()+86400000*20,subLeft:12,frozen:false,blockLen:21,xp:420,streak:2,lastActive:Date.now()-86400000*2,blockDone:5,discount:'—'};
+  DB.users['ivan']={role:'client',pass:'1234',name:'Иван Петров',phone:'+7 900 444-55-66',code:'FIT2026',joined:Date.now()-86400000*10,notes:'',tags:['набор массы'],subUntil:Date.now()+86400000*40,subLeft:25,frozen:false,blockLen:42,xp:150,streak:0,lastActive:Date.now()-86400000*7,blockDone:2,discount:'—'};
+  DB.users.anna.quests=[
+    {id:'q1',name:'Тренировка в зале',desc:'Силовая, 60 минут',type:'train',xp:50,on:true},
+    {id:'q2',name:'Норма белка',desc:'1,6 г на кг веса',type:'food',xp:30,on:true},
+    {id:'q3',name:'10 000 шагов',desc:'Ежедневно',type:'habit',xp:20,on:true}];
+  DB.users.ivan.quests=[
+    {id:'q4',name:'Тренировка верх тела',desc:'Жим, тяга, 60 минут',type:'train',xp:50,on:true},
+    {id:'q5',name:'Профицит калорий',desc:'+300 ккал к норме',type:'food',xp:30,on:true}];
+  var t=Date.now();
+  DB.events.push({id:uid(),title:'Пилатес и укрепление спины',type:'group',when:t+86400000,cap:8,price:900,signed:['anna','ivan']});
+  DB.events.push({id:uid(),title:'Персоналка: Анна',type:'pt',when:t+86400000*2,cap:1,price:2500,signed:['anna'],paid:{anna:true}});
+  DB.reports.push({id:uid(),user:'anna',quest:'Тренировка в зале',text:'Сделала 3х15, тяжело но норм',ts:t-3600000,status:'pending'});
+  DB.payments.push({id:uid(),user:'anna',amount:2500,tariff:'Индивидуальная',ts:t-86400000*3,event:null});
+  DB.measures.push({id:uid(),user:'anna',weight:64.5,waist:74,ts:t-86400000*20});
+  DB.measures.push({id:uid(),user:'anna',weight:63.1,waist:72,ts:t-86400000*5});
+  saveDB();
+}
 
-function renderAuth(){var h=authBlock('trainer');qsel('app').innerHTML=h;
-if(authTab==='login'){qsel('authForm').innerHTML='<div class="card"><label>Логин</label><input id="lLogin"><label>Пароль</label><input id="lPass" type="password"><div class="row"><button class="btn" onclick="doLogin()">Войти</button></div><div class="muted" style="margin-top:10px">Демо: trainer / 1234</div></div>'}
-else{qsel('authForm').innerHTML='<div class="card"><label>Имя</label><input id="rName"><label>Логин</label><input id="rLogin"><label>Пароль</label><input id="rPass" type="password"><div class="row"><button class="btn" onclick="doReg()">Создать аккаунт тренера</button></div></div>'}}
+/* ===== theme ===== */
+function applyTheme(){
+  var m=localStorage.getItem(THEME_KEY)||'auto';
+  var dark;
+  if(m==='dark') dark=true; else if(m==='light') dark=false; else { var h=new Date().getHours(); dark=(h<8||h>=20); }
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  var b=document.getElementById('themeBtn');
+  if(b) b.textContent = m==='auto' ? '🌗' : (dark?'🌙':'☀️');
+}
+function cycleTheme(){
+  var m=localStorage.getItem(THEME_KEY)||'auto';
+  m = m==='light'?'dark':(m==='dark'?'auto':'light');
+  localStorage.setItem(THEME_KEY,m); applyTheme();
+  toast('Оформление: '+(m==='light'?'светлое':m==='dark'?'тёмное':'авто'));
+}
 
-function doLogin(){var u=qsel('lLogin').value.trim(),p=qsel('lPass').value;
-var f=users().find(function(x){return x.u===u&&x.p===p&&x.role==='trainer'});
-if(!f){flash('Неверный логин или пароль');return}
-save('fq_session',u);_flash='';render()}
+/* ===== ui helpers ===== */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function fmtMoney(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ')+' ₽'; }
+function fmtDate(ts){ var d=new Date(ts); return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}); }
+function fmtDT(ts){ var d=new Date(ts); return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); }
+function toast(msg){
+  var t=document.createElement('div'); t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:9999;opacity:0;transition:opacity .2s;';
+  document.body.appendChild(t); requestAnimationFrame(function(){t.style.opacity=1;});
+  setTimeout(function(){ t.style.opacity=0; setTimeout(function(){t.remove();},300); },2200);
+}
+function daysBetween(a,b){ return Math.floor((b-a)/86400000); }
 
-function doReg(){var n=qsel('rName').value.trim(),u=qsel('rLogin').value.trim(),p=qsel('rPass').value;
-if(!n||!u||!p){flash('Заполните все поля');return}
-var us=users();if(us.some(function(x){return x.u===u})){flash('Такой логин уже занят');return}
-var code='FIT-'+Math.random().toString(36).slice(2,6).toUpperCase();
-us.push({u:u,p:p,role:'trainer',name:n,code:code});save('fq_users',us);
-save('fq_session',u);_flash='Аккаунт создан. Ваш код приглашения: '+code;render()}
+/* ===== TRAINER APP ===== */
+var user=null, tab='dash', curClient=null, curSub='profile', finMonth=(new Date()).getMonth(), finYear=(new Date()).getFullYear(), finFilter='all';
 
-function tabsBar(){return '<div class="tabs"><button class="tab '+(tab==='clients'?'on':'')+'" onclick="tab=\'clients\';render()">Клиенты</button>'+
-'<button class="tab '+(tab==='reports'?'on':'')+'" onclick="tab=\'reports\';render()">Отчёты ('+myReports('pending').length+')</button>'+
-'<button class="tab '+(tab==='purchases'?'on':'')+'" onclick="tab=\'purchases\';render()">Покупки ('+myPurchases('pending').length+')</button>'+
-'<button class="tab '+(tab==='chat'?'on':'')+'" onclick="tab=\'chat\';render()">Чат</button>'+
-'<button class="tab '+(tab==='challenge'?'on':'')+'" onclick="tab=\'challenge\';render()">Челлендж</button></div>'}
+function login(){
+  var u=document.getElementById('luser').value.trim(), p=document.getElementById('lpass').value;
+  if(u==='trainer' && p==='1234'){ user='trainer'; save(SESSION_KEY,'trainer'); render(); }
+  else toast('Неверный логин или пароль');
+}
+function logout(){ user=null; save(SESSION_KEY,null); render(); }
 
-function riskOf(u){var reps=load('fq_reports',[]).filter(function(r){return r.client===u&&r.status==='approved'});
-if(!reps.length)return true;var last=reps.reduce(function(a,r){return r.date>a?r.date:a},'');
-return last<today()&&last<yesterday()}
+function clients(){ return Object.keys(DB.users).filter(function(k){return DB.users[k].role==='client';}).map(function(k){ return Object.assign({key:k},DB.users[k]); }); }
+function clientName(k){ return (DB.users[k]&&DB.users[k].name)||k; }
 
-function avgSteps(c){if(!(c.sthist||[]).length)return 0;var s=c.sthist.reduce(function(a,x){return a+x.v},0);return Math.round(s/c.sthist.length)}
+/* --- dashboard --- */
+function dashboard(){
+  var cs=clients(), now=Date.now();
+  var pending=DB.reports.filter(function(r){return r.status==='pending';}).length;
+  var rev=monthRevenue(finYear,finMonth);
+  var warn=cs.filter(function(c){
+    if(c.frozen) return false;
+    return daysBetween(c.lastActive||0,now) >= CFG.warnDays;
+  });
+  var expiring=cs.filter(function(c){ return !c.frozen && (c.subUntil||0)-now < 86400000*7 && (c.subUntil||0)>now; });
+  var top=cs.slice().sort(function(a,b){return (b.xp||0)-(a.xp||0);}).slice(0,5);
+  var h='<h2>Дашборд</h2><div class="cards4">';
+  h+='<div class="card"><div class="mut">Клиенты</div><div class="big">'+cs.length+'</div></div>';
+  h+='<div class="card"><div class="mut">Ждут проверки</div><div class="big">'+pending+'</div></div>';
+  h+='<div class="card"><div class="mut">Выручка за месяц</div><div class="big">'+fmtMoney(rev.sum)+'</div><div class="delta '+(rev.delta>=0?'up':'down')+'">'+(rev.delta>=0?'▲ +':'▼ ')+rev.delta+'% чем 30 дней назад</div></div>';
+  h+='<div class="card"><div class="mut">Ждёт оплаты</div><div class="big">'+fmtMoney(unpaidSum())+'</div></div></div>';
+  h+='<div class="panel"><b>Риск отвала</b>'+(warn.length?'':' — все активны 👍');
+  warn.forEach(function(c){ h+='<div class="row" onclick="openClient(\''+c.key+'\')"><span>'+esc(c.name)+'</span><span class="tag red">'+daysBetween(c.lastActive||0,now)+' дн. тишины</span></div>'; });
+  h+='</div>';
+  if(expiring.length){ h+='<div class="panel"><b>Абонемент истекает</b>'; expiring.forEach(function(c){ h+='<div class="row" onclick="openClient(\''+c.key+'\')"><span>'+esc(c.name)+'</span><span>'+fmtDate(c.subUntil)+'</span></div>'; }); h+='</div>'; }
+  h+='<div class="panel"><b>Топ по XP</b>'; top.forEach(function(c){ h+='<div class="row"><span>'+esc(c.name)+'</span><span>'+(c.xp||0)+' XP</span></div>'; }); h+='</div>';
+  return h;
+}
 
-function renderClients(){var m=me(),cs=myClients(),s=load('fq_settings',{});
-var h='<div class="wrap"><div class="top"><div><b>'+esc(m.name)+'</b><div class="sub">Код приглашения: <b>'+esc(m.code)+'</b> <button class="btn ghost sm" onclick="copyText(\''+esc(m.code)+'\')">Скопировать</button></div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
-if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
-h+=tabsBar();
-h+='<div class="card"><b>Создать клиента</b><label>Имя клиента</label><input id="cName"><label>Логин</label><input id="cLogin"><label>Пароль (придумайте и передайте клиенту)</label><input id="cPass"><div class="row"><button class="btn" onclick="createClient()">Создать аккаунт</button></div>'+
-'<label style="margin-top:16px">Имя файла приложения клиента (какой файл он скачает)</label><input id="cFile" value="'+esc(s.clientFile||'klient.html')+'" onchange="saveSettings()"></div>';
-if(cs.length){cs.forEach(function(cl){var c=cdata(cl.u);
-var link=dir()+(s.clientFile||'klient.html')+'?invite='+encodeURIComponent(m.code)+'&login='+encodeURIComponent(cl.u);
-h+='<div class="card"><div class="top"><div><b>'+esc(cl.name)+'</b> <span class="muted">@'+esc(cl.u)+'</span></div>'+(riskOf(cl.u)?'<span class="badge b-no">риск отвала</span>':'<span class="badge b-ok">в строю</span>')+'</div>'+
-'<div class="row muted">Уровень '+lvlNum(c.xp)+' ('+LVL[lvlNum(c.xp)]+') · '+c.xp+' XP · серия '+c.streak+' · блок '+c.blockDone+'/42 · скидка '+c.discount+'% · шаги в среднем '+avgSteps(c)+'</div>'+
-'<div class="mono">'+esc(link)+'</div>'+
-'<div class="row"><button class="btn sm ghost" onclick="copyText(document.getElementById(\'lnk_'+cl.u+'\').textContent)">Скопировать ссылку</button><button class="btn sm" onclick="chatSel=\''+cl.u+'\';tab=\'chat\';render()">Чат</button></div><span id="lnk_'+cl.u+'" style="display:none">'+esc(link)+'</span></div>'})}
-else h+='<div class="card muted">Клиентов пока нет — создайте первого выше.</div>';
-h+='</div>';qsel('app').innerHTML=h}
+/* --- clients --- */
+function clientsList(){
+  var q=(document.getElementById('csearch')?document.getElementById('csearch').value.toLowerCase():'');
+  var tf=(document.getElementById('ctag')?document.getElementById('ctag').value:'');
+  var cs=clients().filter(function(c){
+    var okq=!q || c.name.toLowerCase().indexOf(q)>=0 || (c.phone||'').indexOf(q)>=0;
+    var okt=!tf || (c.tags||[]).indexOf(tf)>=0;
+    return okq&&okt;
+  });
+  var tags=[]; cs.forEach(function(c){ (c.tags||[]).forEach(function(t){ if(tags.indexOf(t)<0)tags.push(t); }); });
+  var h='<h2>Клиенты</h2><div class="filters"><input id="csearch" placeholder="Имя или телефон" value="'+esc(q)+'" oninput="rerender()">';
+  h+='<select id="ctag" onchange="rerender()"><option value="">Все теги</option>'+tags.map(function(t){return '<option '+(tf===t?'selected':'')+'>'+esc(t)+'</option>';}).join('')+'</select></div>';
+  cs.forEach(function(c){
+    var badge = c.frozen?'<span class="tag">заморозка</span>':((daysBetween(c.lastActive||0,Date.now())>=CFG.warnDays)?'<span class="tag red">риск отвала</span>':'');
+    h+='<div class="card" onclick="openClient(\''+c.key+'\')"><b>'+esc(c.name)+'</b> '+badge+'<div class="mut">'+esc(c.phone||'')+' · '+(c.xp||0)+' XP · блок '+(c.blockDone||0)+'/'+(c.blockLen||CFG.blockLen)+'</div></div>';
+  });
+  h+='<button onclick="newClient()">+ Добавить клиента</button>';
+  return h;
+}
+function openClient(k){ curClient=k; curSub='profile'; tab='client'; render(); }
+function newClient(){
+  var n=prompt('Имя клиента:'); if(!n)return;
+  var ph=prompt('Телефон:','')||'';
+  var key='c'+Date.now().toString(36);
+  DB.users[key]={role:'client',pass:'1234',name:n,phone:ph,code:CFG.inviteCode,joined:Date.now(),notes:'',tags:[],subUntil:Date.now()+86400000*30,subLeft:16,frozen:false,blockLen:CFG.blockLen,xp:0,streak:0,lastActive:Date.now(),blockDone:0,discount:'—',quests:[]};
+  saveDB(); openClient(key);
+}
+function clientCard(){
+  var c=DB.users[curClient]; if(!c) return '<p>Клиент не найден</p>';
+  var h='<button class="back" onclick="tab=\'clients\';render()">← Клиенты</button>';
+  h+='<h2>'+esc(c.name)+'</h2>';
+  h+='<div class="tabsm">'+['profile','quests','measures','payments','chat'].map(function(s){
+    return '<span class="'+(curSub===s?'on':'')+'" onclick="curSub=\''+s+'\';render()">'+({profile:'Профиль',quests:'Квесты',measures:'Замеры',payments:'Оплаты',chat:'Чат'})[s]+'</span>';
+  }).join('')+'</div>';
+  if(curSub==='profile') h+=subProfile(c);
+  if(curSub==='quests') h+=subQuests(c);
+  if(curSub==='measures') h+=subMeasures(c);
+  if(curSub==='payments') h+=subPayments(c);
+  if(curSub==='chat') h+=chatBlock(curClient,'trainer');
+  return h;
+}
+function subProfile(c){
+  var link=location.href.split('?')[0].replace('trener.html','klient.html')+'?code='+encodeURIComponent(CFG.inviteCode);
+  var h='<div class="panel"><b>Профиль</b>';
+  h+='<div class="row"><span>Телефон</span><span>'+esc(c.phone||'—')+'</span></div>';
+  h+='<div class="row"><span>Логин</span><span>'+esc(curClient)+' / пароль 1234</span></div>';
+  h+='</div>';
+  h+='<div class="panel"><b>Ссылка-приглашение</b><div class="mut">'+esc(link)+'</div><button onclick="copyLink()">Скопировать</button></div>';
+  h+='<div class="panel"><b>Абонемент</b>';
+  h+='<div class="row"><span>Действует до</span><span>'+fmtDate(c.subUntil||Date.now())+'</span></div>';
+  h+='<div class="row"><span>Осталось посещений</span><span>'+(c.subLeft||0)+'</span></div>';
+  h+='<button onclick="extendSub(\''+curClient+'\')">+30 дней</button> ';
+  h+='<button onclick="toggleFreeze(\''+curClient+'\')">'+(c.frozen?'Разморозить':'Заморозить')+'</button>';
+  h+='</div>';
+  h+='<div class="panel"><b>Заметки тренера (только для вас)</b><textarea id="notes_'+curClient+'" rows="3">'+esc(c.notes||'')+'</textarea><button onclick="saveNotes(\''+curClient+'\')">Сохранить заметки</button></div>';
+  h+='<div class="panel"><b>Теги</b><input id="tags_'+curClient+'" value="'+esc((c.tags||[]).join(', '))+'"><button onclick="saveTags(\''+curClient+'\')">Сохранить теги</button></div>';
+  h+='<div class="panel"><b>Прогресс блока</b><div class="row"><span>Закрыто квестов</span><span>'+(c.blockDone||0)+' из '+(c.blockLen||CFG.blockLen)+'</span></div><div class="bar"><div style="width:'+Math.min(100,100*(c.blockDone||0)/(c.blockLen||CFG.blockLen))+'%"></div></div>';
+  h+='<div class="row"><span>Скидка</span><span>'+esc(c.discount||'—')+'</span></div>';
+  h+='<button onclick="resetBlock(\''+curClient+'\')">Сбросить блок</button></div>';
+  return h;
+}
+function copyLink(){
+  var link=location.href.split('?')[0].replace('trener.html','klient.html')+'?code='+encodeURIComponent(CFG.inviteCode);
+  if(navigator.clipboard) navigator.clipboard.writeText(link).then(function(){toast('Ссылка скопирована');});
+  else toast(link);
+}
+function extendSub(k){ DB.users[k].subUntil=(DB.users[k].subUntil||Date.now())+86400000*30; saveDB(); render(); }
+function toggleFreeze(k){ DB.users[k].frozen=!DB.users[k].frozen; saveDB(); render(); }
+function saveNotes(k){ DB.users[k].notes=document.getElementById('notes_'+k).value; saveDB(); toast('Сохранено'); }
+function saveTags(k){ DB.users[k].tags=document.getElementById('tags_'+k).value.split(',').map(function(s){return s.trim();}).filter(Boolean); saveDB(); render(); }
+function resetBlock(k){ DB.users[k].blockDone=0; DB.users[k].discount='—'; saveDB(); render(); }
 
-function saveSettings(){save('fq_settings',{clientFile:qsel('cFile').value.trim()||'klient.html'});flash('Настройка сохранена')}
+function subQuests(c){
+  var h='<div class="panel"><b>Квесты клиента</b>';
+  (c.quests||[]).forEach(function(q){
+    h+='<div class="card"><b>'+esc(q.name)+'</b> <span class="tag">'+({train:'тренировка',food:'питание',habit:'привычка'})[q.type]+'</span> <span class="tag">'+q.xp+' XP</span>'+(q.on?'':' <span class="tag red">выкл</span>');
+    h+='<div class="mut">'+esc(q.desc||'')+'</div>';
+    h+='<button onclick="toggleQuest(\''+curClient+'\',\''+q.id+'\')">'+(q.on?'Выключить':'Включить')+'</button> ';
+    h+='<button onclick="editQuest(\''+curClient+'\',\''+q.id+'\')">Изменить</button> ';
+    h+='<button class="danger" onclick="delQuest(\''+curClient+'\',\''+q.id+'\')">Удалить</button></div>';
+  });
+  h+='<button onclick="addQuest(\''+curClient+'\')">+ Добавить квест</button></div>';
+  h+='<div class="panel"><b>Шаблоны программ</b>';
+  var tpl=load('fq_tpl',{});
+  Object.keys(tpl).forEach(function(n){ h+='<div class="row"><span>'+esc(n)+' ('+tpl[n].length+')</span><span><button onclick="applyTpl(\''+curClient+'\',\''+esc(n)+'\')">Применить</button> <button class="danger" onclick="delTpl(\''+esc(n)+'\')">Удалить</button></span></div>'; });
+  h+='<button onclick="saveTpl(\''+curClient+'\')">Сохранить квесты как шаблон</button></div>';
+  return h;
+}
+function askQuest(existing){
+  var name=prompt('Название квеста:', existing?existing.name:''); if(!name)return null;
+  var desc=prompt('Описание:', existing?existing.desc:'')||'';
+  var type=prompt('Тип: тренировка / питание / привычка:', existing?existing.type:'тренировка')||'train';
+  type=type.toLowerCase().indexOf('пит')===0?'food':(type.toLowerCase().indexOf('при')===0?'habit':'train');
+  var xp=parseInt(prompt('XP за квест:', existing?existing.xp:CFG[type==='train'?'xpTrain':type==='food'?'xpFood':'xpHabit']))||10;
+  return {name:name,desc:desc,type:type,xp:xp};
+}
+function addQuest(k){ var q=askQuest(); if(!q)return; q.id='q'+Date.now().toString(36); q.on=true; DB.users[k].quests=DB.users[k].quests||[]; DB.users[k].quests.push(q); saveDB(); render(); }
+function editQuest(k,qid){ var c=DB.users[k]; var q=(c.quests||[]).filter(function(x){return x.id===qid;})[0]; if(!q)return; var nq=askQuest(q); if(!nq)return; Object.assign(q,nq); saveDB(); render(); }
+function delQuest(k,qid){ DB.users[k].quests=(DB.users[k].quests||[]).filter(function(x){return x.id!==qid;}); saveDB(); render(); }
+function toggleQuest(k,qid){ var q=DB.users[k].quests.filter(function(x){return x.id===qid;})[0]; q.on=!q.on; saveDB(); render(); }
+function saveTpl(k){ var n=prompt('Название шаблона:'); if(!n)return; var t=load('fq_tpl',{}); t[n]=JSON.parse(JSON.stringify(DB.users[k].quests||[])); save('fq_tpl',t); render(); }
+function delTpl(n){ var t=load('fq_tpl',{}); delete t[decodeURIComponent(n)]; save('fq_tpl',t); render(); }
+function applyTpl(k,n){ var t=load('fq_tpl',{}); var arr=t[decodeURIComponent(n)]; if(!arr)return; DB.users[k].quests=JSON.parse(JSON.stringify(arr)); saveDB(); render(); }
 
-function dir(){var h=location.href.split('?')[0].split('#')[0].split('/');h.pop();return h.join('/')+'/'}
+function subMeasures(c){
+  var ms=(DB.measures||[]).filter(function(m){return m.user===curClient;}).sort(function(a,b){return a.ts-b.ts;});
+  var h='<div class="panel"><b>Замеры</b>';
+  ms.forEach(function(m){ h+='<div class="row"><span>'+fmtDate(m.ts)+'</span><span>'+m.weight+' кг · талия '+m.waist+' см <button class="danger" onclick="delMeasure(\''+m.id+'\')">✕</button></span></div>'; });
+  h+='</div>';
+  if(ms.length>1){
+    h+='<div class="panel"><b>График веса</b><canvas id="wchart" width="320" height="160"></canvas></div>';
+  }
+  h+='<div class="panel"><b>Новый замер</b><label>Вес (кг)</label><input id="mw" type="number" step="0.1"><label>Талия (см)</label><input id="mwa" type="number" step="0.5"><button onclick="addMeasure()">Добавить</button></div>';
+  return h;
+}
+function addMeasure(){
+  var w=parseFloat(document.getElementById('mw').value), wa=parseFloat(document.getElementById('mwa').value);
+  if(!w) { toast('Введите вес'); return; }
+  DB.measures.push({id:uid(),user:curClient,weight:w,waist:wa||0,ts:Date.now()}); saveDB(); render();
+}
+function delMeasure(id){ DB.measures=DB.measures.filter(function(m){return m.id!==id;}); saveDB(); render(); }
+function drawWeightChart(){
+  var cv=document.getElementById('wchart'); if(!cv) return;
+  var ms=(DB.measures||[]).filter(function(m){return m.user===curClient;}).sort(function(a,b){return a.ts-b.ts;});
+  var ctx=cv.getContext('2d'), W=cv.width, H=cv.height, pad=20;
+  var ws=ms.map(function(m){return m.weight;});
+  var mn=Math.min.apply(null,ws)-1, mx=Math.max.apply(null,ws)+1;
+  ctx.clearRect(0,0,W,H);
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  ctx.strokeStyle=dark?'#556':'#ccc'; ctx.fillStyle=dark?'#ccc':'#333';
+  ws.forEach(function(w,i){
+    var x=pad+(W-2*pad)*(ms.length===1?0.5:i/(ws.length-1));
+    var y=H-pad-(H-2*pad)*((w-mn)/(mx-mn));
+    if(i>0){ ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(x,y); ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(x,y,3,0,7); ctx.fill();
+    var px=x,py=y;
+  });
+  ctx.fillText(String(Math.round(mx-1)),4,14); ctx.fillText(String(Math.round(mn+1)),4,H-6);
+}
+function subPayments(c){
+  var pays=(DB.payments||[]).filter(function(p){return p.user===curClient;}).sort(function(a,b){return b.ts-a.ts;});
+  var h='<div class="panel"><b>Оплаты клиента</b>';
+  pays.forEach(function(p){ h+='<div class="row"><span>'+fmtDate(p.ts)+' · '+esc(p.tariff||'оплата')+'</span><span>'+fmtMoney(p.amount)+' <button class="danger" onclick="delPayment(\''+p.id+'\')">✕</button></span></div>'; });
+  h+='<label>Новая оплата</label><select id="ptar">'+CFG.tariffs.map(function(t){return '<option value="'+t.id+'">'+esc(t.name)+' — '+t.price+' ₽</option>';}).join('')+'<option value="custom">Своя сумма</option></select>';
+  h+='<input id="psum" type="number" placeholder="Сумма ₽"><button onclick="addPayment(\''+curClient+'\')">Записать оплату</button></div>';
+  return h;
+}
+function addPayment(k){
+  var sel=document.getElementById('ptar').value, sum=parseFloat(document.getElementById('psum').value);
+  var tariff='Оплата';
+  if(sel!=='custom'){ var t=CFG.tariffs.filter(function(x){return x.id===sel;})[0]; tariff=t.name; if(!sum) sum=t.price; }
+  if(!sum){ toast('Введите сумму'); return; }
+  DB.payments.push({id:uid(),user:k,amount:sum,tariff:tariff,ts:Date.now(),event:null}); saveDB(); render();
+}
+function delPayment(id){ DB.payments=DB.payments.filter(function(p){return p.id!==id;}); saveDB(); render(); }
 
-function createClient(){var n=qsel('cName').value.trim(),u=qsel('cLogin').value.trim(),p=qsel('cPass').value;
-if(!n||!u||!p){flash('Заполните все поля');return}
-var us=users();if(us.some(function(x){return x.u===u})){flash('Такой логин уже занят');return}
-us.push({u:u,p:p,role:'client',name:n,trainer:me().u});save('fq_users',us);
-var link=dir()+(load('fq_settings',{}).clientFile||'klient.html')+'?invite='+encodeURIComponent(me().code)+'&login='+encodeURIComponent(u);
-qsel('cName').value='';qsel('cLogin').value='';qsel('cPass').value='';
-flash('Клиент создан. Ссылка-приглашение ниже');window._lastLink=link;window._lastLogin=u;
-renderClients();
-var card=qsel('app').querySelector('.card');
-if(window._lastLink)qsel('app').innerHTML=qsel('app').innerHTML.replace(tabsBar(),tabsBar()+'<div class="card"><b>Ссылка для '+esc(n)+'</b><div class="mono">'+esc(link)+'</div><div class="row"><button class="btn sm" onclick="copyText(\''+esc(link)+'\')">Скопировать ссылку</button></div><div class="muted">Отправьте её клиенту в мессенджер — он откроет, задаст пароль и сразу попадёт к вам.</div></div>')}
+/* --- chat --- */
+function chatBlock(peer,role){
+  var me = role==='trainer'?'trainer':USER_KEY;
+  var msgs=(DB.chats||[]).filter(function(m){ return (m.from===me&&m.to===peer)||(m.from===peer&&m.to===me); }).sort(function(a,b){return a.ts-b.ts;});
+  var h='<div class="panel chat"><div class="msgs">';
+  msgs.forEach(function(m){ h+='<div class="msg '+(m.from===me?'me':'')+'"><b>'+(m.from===me?'Вы':esc(clientName(m.from)))+'</b> '+esc(m.text)+'<div class="mut">'+fmtDT(m.ts)+'</div></div>'; });
+  if(!msgs.length) h+='<div class="mut">Сообщений пока нет</div>';
+  h+='</div><div class="chatrow"><input id="chat_'+peer+'" placeholder="Сообщение…" onkeydown="if(event.key===\'Enter\')sendChat(\''+peer+'\')"><button onclick="sendChat(\''+peer+'\')">➤</button></div></div>';
+  return h;
+}
+function sendChat(peer){
+  var inp=document.getElementById('chat_'+peer); var t=inp.value.trim(); if(!t)return;
+  DB.chats=DB.chats||[];
+  DB.chats.push({id:uid(),from:'trainer',to:peer,text:t,ts:Date.now()});
+  saveDB(); inp.value=''; render();
+}
 
-function renderReports(){var reps=myReports('pending');
-var h='<div class="wrap"><div class="top"><div><b>Проверка отчётов</b><div class="sub">В очереди: '+reps.length+'</div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
-if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
-h+=tabsBar();
-if(!reps.length)h+='<div class="card muted">Очередь пуста — все отчёты обработаны.</div>';
-reps.forEach(function(r){var cl=users().find(function(x){return x.u===r.client})||{};
-h+='<div class="card"><b>'+esc(cl.name||r.client)+'</b> · '+REPMAP[r.quest]||r.quest;
-h+='<div class="muted">'+new Date(r.ts).toLocaleString()+' '+(r.file?'· вложение: '+esc(r.file):'')+'</div>';
-h+='<div style="margin-top:8px">'+esc(r.text)+'</div>';
-h+='<div class="row"><button class="btn ok sm" onclick="approve('+r.id+')">✔ Засчитать</button><button class="btn danger sm" onclick="reject('+r.id+')">✘ Отклонить</button></div></div>'});
-h+='</div>';qsel('app').innerHTML=h}
+/* --- schedule --- */
+function schedule(){
+  var evs=DB.events.slice().sort(function(a,b){return a.when-b.when;});
+  var h='<h2>Расписание</h2><button onclick="newEvent()">+ Создать занятие</button>';
+  evs.forEach(function(e){
+    var d=new Date(e.when);
+    h+='<div class="card"><b>'+esc(e.title)+'</b> <span class="tag">'+(e.type==='pt'?'персональная':'групповая')+'</span>';
+    h+='<div class="mut">'+d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' · '+fmtMoney(e.price||0)+(e.tariff?' · '+esc(e.tariff):'')+'</div>';
+    h+='<div class="mut">Записались: '+((e.signed||[]).map(clientName).join(', ')||'—')+' ('+((e.signed||[]).length)+'/'+(e.cap||1)+')</div>';
+    if(e.type==='pt'||(e.signed||[]).length){
+      (e.signed||[]).forEach(function(u){
+        var paid=(e.paid&&e.paid[u])||false;
+        h+='<div class="row"><span>'+esc(clientName(u))+'</span><span><label class="switch"><input type="checkbox" '+(paid?'checked':'')+' onchange="togglePaid(\''+e.id+'\',\''+u+'\',this.checked)"><i></i></label> '+(paid?fmtMoney(e.price||0):'ждёт оплаты')+'</span></div>';
+      });
+    }
+    h+='<button class="danger" onclick="delEvent(\''+e.id+'\')">Удалить занятие</button></div>';
+  });
+  if(!evs.length) h+='<p class="mut">Занятий пока нет</p>';
+  return h;
+}
+function newEvent(){
+  var title=prompt('Название занятия:'); if(!title)return;
+  var type=confirm('Это персональная тренировка?\n\nOK — персональная, Отмена — групповая')?'pt':'group';
+  var ds=prompt('Дата и время (ГГГГ-ММ-ДД ЧЧ:ММ):','2026-11-28 18:00'); if(!ds)return;
+  var when=new Date(ds.replace(' ','T')).getTime(); if(isNaN(when)){toast('Неверная дата');return;}
+  var cap=parseInt(prompt('Сколько мест:','1'))||1;
+  var defPrice = type==='pt'?(CFG.tariffs[0]?CFG.tariffs[0].price:1000):900;
+  var price=parseFloat(prompt('Цена, ₽:',defPrice))||0;
+  DB.events.push({id:uid(),title:title,type:type,when:when,cap:cap,price:price,signed:[],paid:{}});
+  saveDB(); render();
+}
+function delEvent(id){ DB.events=DB.events.filter(function(e){return e.id!==id;}); saveDB(); render(); }
+function togglePaid(eid,uname,val){
+  var e=DB.events.filter(function(x){return x.id===eid;})[0]; if(!e)return;
+  e.paid=e.paid||{};
+  if(val){ e.paid[uname]=true;
+    var exists=DB.payments.some(function(p){return p.event===eid&&p.user===uname;});
+    if(!exists) DB.payments.push({id:uid(),user:uname,amount:e.price||0,tariff:e.tariff||e.title,ts:Date.now(),event:eid});
+  } else { delete e.paid[uname];
+    DB.payments=DB.payments.filter(function(p){return !(p.event===eid&&p.user===uname);});
+  }
+  saveDB(); render();
+}
 
-function approve(id){var reps=load('fq_reports',[]),r=reps.find(function(x){return x.id===id});
-if(!r||r.status!=='pending')return;
-r.status='approved';save('fq_reports',reps);
-var c=cdata(r.client);c.xp+=10;c.blockDone=(c.blockDone||0)+1;
-if(c.blockDone>=42){c.blockDone=0;c.discount=15;pushChat(r.client,'trainer','Блок закрыт полностью — скидка на следующий блок теперь 15% 🎉')}
-else{pushChat(r.client,'trainer','Отчёт «'+(REPMAP[r.quest]||r.quest)+'» засчитан: +10 XP')}
-saveC(r.client,c);flash('Засчитано')}
+/* --- checks --- */
+function checks(){
+  var pend=DB.reports.filter(function(r){return r.status==='pending';}).sort(function(a,b){return b.ts-a.ts;});
+  var done=DB.reports.filter(function(r){return r.status!=='pending';}).sort(function(a,b){return b.ts-a.ts;}).slice(0,15);
+  var h='<h2>Проверки</h2>';
+  pend.forEach(function(r){
+    h+='<div class="card"><b>'+esc(clientName(r.user))+'</b><div class="mut">'+esc(r.quest)+' · '+fmtDT(r.ts)+'</div>';
+    h+='<div>'+esc(r.text||'')+'</div>'+(r.photo?'<div class="mut">📷 фото приложено</div>':'');
+    h+='<button onclick="approve(\''+r.id+'\')">✓ Засчитать</button> <button class="danger" onclick="reject(\''+r.id+'\')">✕ Отклонить</button></div>';
+  });
+  if(!pend.length) h+='<p class="mut">Очередь пуста</p>';
+  h+='<div class="panel"><b>История решений</b>';
+  done.forEach(function(r){ h+='<div class="row"><span>'+esc(clientName(r.user))+' · '+esc(r.quest)+'</span><span class="tag '+(r.status==='approved'?'ok':'red')+'">'+(r.status==='approved'?'засчитан':'отклонён')+'</span></div>'; });
+  h+='</div>';
+  return h;
+}
+function approve(id){
+  var r=DB.reports.filter(function(x){return x.id===id;})[0]; if(!r)return;
+  r.status='approved';
+  var u=DB.users[r.user]; if(u){
+    u.xp=(u.xp||0)+(r.xp||0);
+    u.blockDone=(u.blockDone||0)+1;
+    u.lastActive=Date.now();
+    var bl=u.blockLen||CFG.blockLen;
+    if(u.blockDone>=bl){ u.discount='скидка '+CFG.discountFull+'%'; u.blockDone=0; toast('Блок закрыт! Скидка '+CFG.discountFull+'%'); }
+    else if(u.blockDone>=Math.floor(bl/2)){ u.discount='скидка '+CFG.discountHalf+'%'; }
+    u.streak=(u.streak||0)+1;
+    if(u.streak%CFG.streakEvery===0){ u.xp+=CFG.streakBonus; toast('Бонус за серию: +'+CFG.streakBonus+' XP'); }
+  }
+  saveDB(); render();
+}
+function reject(id){ var r=DB.reports.filter(function(x){return x.id===id;})[0]; if(r){ r.status='rejected'; saveDB(); render(); } }
 
-function reject(id){var reps=load('fq_reports',[]),r=reps.find(function(x){return x.id===id});
-if(!r||r.status!=='pending')return;
-var cm=prompt('Причина отклонения (клиент её увидит):','Переделай, пожалуйста');
-if(cm===null)return;
-r.status='rejected';r.comment=cm;save('fq_reports',reps);
-pushChat(r.client,'trainer','Отчёт «'+(REPMAP[r.quest]||r.quest)+'» отклонён: '+cm);flash('Отклонено')}
+/* --- finance --- */
+function monthRevenue(y,m){
+  var s=0;
+  DB.payments.forEach(function(p){ var d=new Date(p.ts); if(d.getFullYear()===y&&d.getMonth()===m) s+=p.amount||0; });
+  var pd=new Date(y,m-1,1); var ps=0;
+  if(m===0) pd=new Date(y-1,11,1);
+  DB.payments.forEach(function(p){ var d=new Date(p.ts); if(d.getFullYear()===pd.getFullYear()&&d.getMonth()===pd.getMonth()) ps+=p.amount||0; });
+  var delta=ps>0?Math.round((s-ps)/ps*100):(s>0?100:0);
+  return {sum:s,delta:delta};
+}
+function unpaidSum(){
+  var s=0;
+  DB.events.forEach(function(e){
+    (e.signed||[]).forEach(function(u){ if(!(e.paid&&e.paid[u])) s+=e.price||0; });
+  });
+  return s;
+}
+function unpaidList(){
+  var arr=[];
+  DB.events.forEach(function(e){ (e.signed||[]).forEach(function(u){ if(!(e.paid&&e.paid[u])) arr.push({u:u,e:e}); }); });
+  return arr;
+}
+function finance(){
+  var rev=monthRevenue(finYear,finMonth);
+  var mn=new Date(finYear,finMonth,1);
+  var h='<h2>Финансы</h2>';
+  h+='<div class="filters"><button onclick="shiftMonth(-1)">←</button><b>'+mn.toLocaleDateString('ru-RU',{month:'long',year:'numeric'})+'</b><button onclick="shiftMonth(1)">→</button></div>';
+  h+='<div class="cards4"><div class="card"><div class="mut">Выручка</div><div class="big">'+fmtMoney(rev.sum)+'</div><div class="delta '+(rev.delta>=0?'up':'down')+'">'+(rev.delta>=0?'▲ +':'▼ ')+rev.delta+'%</div></div>';
+  h+='<div class="card"><div class="mut">Ждёт оплаты</div><div class="big">'+fmtMoney(unpaidSum())+'</div></div>';
+  h+='<div class="card"><div class="mut">Оплат</div><div class="big">'+DB.payments.filter(function(p){var d=new Date(p.ts);return d.getFullYear()===finYear&&d.getMonth()===finMonth;}).length+'</div></div></div>';
+  var mp=[['all','Все'],['paid','Оплачено'],['unpaid','Ждёт оплаты']];
+  h+='<div class="tabsm">'+mp.map(function(x){return '<span class="'+(finFilter===x[0]?'on':'')+'" onclick="finFilter=\''+x[0]+'\';render()">'+x[1]+'</span>';}).join('')+'</div>';
+  if(finFilter==='unpaid'||finFilter==='all'){
+    unpaidList().forEach(function(x){
+      h+='<div class="row card"><span>'+esc(clientName(x.u))+' · '+esc(x.e.title)+' · '+fmtDate(x.e.when)+'</span><span class="tag red">'+fmtMoney(x.e.price||0)+'</span></div>';
+    });
+  }
+  if(finFilter==='paid'||finFilter==='all'){
+    DB.payments.filter(function(p){var d=new Date(p.ts);return d.getFullYear()===finYear&&d.getMonth()===finMonth;}).sort(function(a,b){return b.ts-a.ts;}).forEach(function(p){
+      h+='<div class="row card"><span>'+esc(clientName(p.user))+' · '+esc(p.tariff||'оплата')+' · '+fmtDate(p.ts)+'</span><span>'+fmtMoney(p.amount)+'</span></div>';
+    });
+  }
+  var per={};
+  DB.payments.forEach(function(p){ var d=new Date(p.ts); if(d.getFullYear()===finYear&&d.getMonth()===finMonth){ per[p.user]=(per[p.user]||0)+(p.amount||0); } });
+  var keys=Object.keys(per).sort(function(a,b){return per[b]-per[a];});
+  if(keys.length){
+    var tot=0; keys.forEach(function(k){tot+=per[k];});
+    h+='<div class="panel"><b>Кто приносит деньги</b>';
+    keys.forEach(function(k){
+      var pct=Math.round(per[k]/tot*100);
+      h+='<div class="row"><span>'+esc(clientName(k))+' — '+fmtMoney(per[k])+' ('+pct+'%)</span></div><div class="bar"><div style="width:'+pct+'%"></div></div>';
+    });
+    h+='</div>';
+  }
+  h+='<div class="panel"><b>Тарифы</b>';
+  CFG.tariffs.forEach(function(t){
+    h+='<div class="row"><span>'+esc(t.name)+'</span><span>'+fmtMoney(t.price)+' <button onclick="editTariff(\''+t.id+'\')">Изменить</button> <button class="danger" onclick="delTariff(\''+t.id+'\')">✕</button></span></div>';
+  });
+  h+='<button onclick="addTariff()">+ Добавить тариф</button></div>';
+  return h;
+}
+function shiftMonth(d){ finMonth+=d; if(finMonth<0){finMonth=11;finYear--;} if(finMonth>11){finMonth=0;finYear++;} render(); }
+function addTariff(){ var n=prompt('Название тарифа:'); if(!n)return; var p=parseFloat(prompt('Цена, ₽:','1000'))||0; CFG.tariffs.push({id:uid(),name:n,price:p}); save(CFG_KEY,CFG); render(); }
+function editTariff(id){ var t=CFG.tariffs.filter(function(x){return x.id===id;})[0]; if(!t)return; var n=prompt('Название:',t.name)||t.name; var p=parseFloat(prompt('Цена, ₽:',t.price))||t.price; Object.assign(t,{name:n,price:p}); save(CFG_KEY,CFG); render(); }
+function delTariff(id){ CFG.tariffs=CFG.tariffs.filter(function(x){return x.id!==id;}); save(CFG_KEY,CFG); render(); }
 
-function renderPurchases(){var ps=myPurchases('pending');
-var h='<div class="wrap"><div class="top"><div><b>Покупки наград</b><div class="sub">В очереди: '+ps.length+'</div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
-if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
-h+=tabsBar();
-if(!ps.length)h+='<div class="card muted">Нет заявок на награды.</div>';
-ps.forEach(function(p){var cl=users().find(function(x){return x.u===p.client})||{};
-h+='<div class="card"><b>'+esc(cl.name||p.client)+'</b> хочет: '+esc(p.title)+' <span class="muted">('+p.cost+' XP)</span>'+
-'<div class="row"><button class="btn ok sm" onclick="approveP('+p.id+')">✔ Подтвердить</button><button class="btn danger sm" onclick="rejectP('+p.id+')">✘ Отказать</button></div></div>'});
-h+='</div>';qsel('app').innerHTML=h}
+/* --- shop --- */
+function shop(){
+  var h='<h2>Лавка наград</h2><div class="panel">';
+  CFG.shop.forEach(function(s){
+    var bought=(DB.purchases||[]).filter(function(p){return p.shop===s.id;}).length;
+    h+='<div class="row"><span>'+esc(s.name)+' <span class="mut">куплено: '+bought+'</span></span><span>'+s.cost+' XP <button onclick="editReward(\''+s.id+'\')">Изменить</button> <button class="danger" onclick="delReward(\''+s.id+'\')">✕</button></span></div>';
+  });
+  h+='<button onclick="addReward()">+ Добавить награду</button></div>';
+  return h;
+}
+function addReward(){ var n=prompt('Название награды:'); if(!n)return; var c=parseInt(prompt('Цена в XP:','200'))||100; CFG.shop.push({id:uid(),name:n,cost:c}); save(CFG_KEY,CFG); render(); }
+function editReward(id){ var s=CFG.shop.filter(function(x){return x.id===id;})[0]; if(!s)return; var n=prompt('Название:',s.name)||s.name; var c=parseInt(prompt('Цена в XP:',s.cost))||s.cost; Object.assign(s,{name:n,cost:c}); save(CFG_KEY,CFG); render(); }
+function delReward(id){ CFG.shop=CFG.shop.filter(function(x){return x.id!==id;}); save(CFG_KEY,CFG); render(); }
 
-function approveP(id){var ps=load('fq_purchases',[]),p=ps.find(function(x){return x.id===id});
-if(!p||p.status!=='pending')return;p.status='approved';save('fq_purchases',ps);
-pushChat(p.client,'trainer','Награда подтверждена: '+p.title+'. Корректирую план!');flash('Подтверждено')}
+/* --- settings --- */
+function settings(){
+  var h='<h2>Настройки</h2><div class="panel"><b>Приложение</b>';
+  h+='<label>Название</label><input id="set_name" value="'+esc(CFG.appName)+'">';
+  h+='<label>Код тренера (для приглашений)</label><input id="set_code" value="'+esc(CFG.inviteCode)+'"></div>';
+  h+='<div class="panel"><b>Скидки и блок</b>';
+  h+='<label>Скидка за половину блока, %</label><input id="set_dh" type="number" value="'+CFG.discountHalf+'">';
+  h+='<label>Скидка за полный блок, %</label><input id="set_df" type="number" value="'+CFG.discountFull+'">';
+  h+='<label>Длина блока по умолчанию</label><input id="set_bl" type="number" value="'+CFG.blockLen+'"></div>';
+  h+='<div class="panel"><b>XP по умолчанию</b>';
+  h+='<label>За тренировку</label><input id="set_xt" type="number" value="'+CFG.xpTrain+'">';
+  h+='<label>За питание</label><input id="set_xf" type="number" value="'+CFG.xpFood+'">';
+  h+='<label>За привычку</label><input id="set_xh" type="number" value="'+CFG.xpHabit+'">';
+  h+='<label>Бонус за серию (XP)</label><input id="set_sb" type="number" value="'+CFG.streakBonus+'">';
+  h+='<label>Серия каждые N дней</label><input id="set_se" type="number" value="'+CFG.streakEvery+'"></div>';
+  h+='<div class="panel"><b>Риск отвала</b><label>Дней без активности для тревоги</label><input id="set_wd" type="number" value="'+CFG.warnDays+'"></div>';
+  h+='<button onclick="saveSettings()">Сохранить настройки</button>';
+  h+='<div class="panel"><b>Хранилище</b><div class="mut">'+(FIREBASE_CONFIG.databaseURL?'Firebase подключён':'Демо-режим: данные в этом браузере. Для синхронизации заполните FIREBASE_CONFIG в начале скрипта.')+'</div></div>';
+  h+='<div class="panel"><b>Данные</b><button class="danger" onclick="resetDemo()">Сбросить демо-данные</button></div>';
+  return h;
+}
+function saveSettings(){
+  CFG.appName=document.getElementById('set_name').value||CFG.appName;
+  CFG.inviteCode=document.getElementById('set_code').value||CFG.inviteCode;
+  CFG.discountHalf=parseFloat(document.getElementById('set_dh').value)||CFG.discountHalf;
+  CFG.discountFull=parseFloat(document.getElementById('set_df').value)||CFG.discountFull;
+  CFG.blockLen=parseInt(document.getElementById('set_bl').value)||CFG.blockLen;
+  CFG.xpTrain=parseInt(document.getElementById('set_xt').value)||CFG.xpTrain;
+  CFG.xpFood=parseInt(document.getElementById('set_xf').value)||CFG.xpFood;
+  CFG.xpHabit=parseInt(document.getElementById('set_xh').value)||CFG.xpHabit;
+  CFG.streakBonus=parseInt(document.getElementById('set_sb').value)||CFG.streakBonus;
+  CFG.streakEvery=parseInt(document.getElementById('set_se').value)||CFG.streakEvery;
+  CFG.warnDays=parseInt(document.getElementById('set_wd').value)||CFG.warnDays;
+  save(CFG_KEY,CFG); toast('Настройки сохранены'); render();
+}
+function resetDemo(){ if(confirm('Сбросить все данные?')){ localStorage.removeItem(DATA_KEY); location.reload(); } }
 
-function rejectP(id){var ps=load('fq_purchases',[]),p=ps.find(function(x){return x.id===id});
-if(!p||p.status!=='pending')return;
-var cm=prompt('Причина отказа:','');if(cm===null)return;
-p.status='rejected';p.comment=cm;save('fq_purchases',ps);
-var c=cdata(p.client);c.xp+=p.cost;saveC(p.client,c);
-pushChat(p.client,'trainer','Отказ по награде «'+p.title+'», XP возвращены. '+(cm||''));flash('Отказано, XP возвращены')}
-
-function renderChallenge(){var m=me(),ch=load('fq_challenge_'+m.u,'');
-var h='<div class="wrap"><div class="top"><div><b>Челлендж недели</b></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
-if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
-h+=tabsBar()+'<div class="card"><label>Текст челленджа — увидят все ваши клиенты</label><textarea id="chText" rows="3">'+esc(ch)+'</textarea><div class="row"><button class="btn" onclick="saveCh()">Сохранить</button></div></div></div>';
-qsel('app').innerHTML=h}
-function saveCh(){save('fq_challenge_'+me().u,qsel('chText').value.trim());flash('Челлендж обновлён')}
-
-function renderChat(){var cs=myClients();
-if(!chatSel&&cs.length)chatSel=cs[0].u;
-var h='<div class="wrap"><div class="top"><div><b>Чат с клиентами</b></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
-if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
-h+=tabsBar();
-if(!cs.length){h+='<div class="card muted">Нет клиентов.</div></div>';qsel('app').innerHTML=h;return}
-h+='<div class="row">'+cs.map(function(c){return '<button class="btn sm '+(chatSel===c.u?'':'ghost')+'" onclick="chatSel=\''+c.u+'\';render()">'+esc(c.name)+'</button>'}).join('')+'</div>';
-var ch=load('fq_chat_'+chatSel,[]);
-h+='<div class="card" id="chatBox" style="max-height:50vh;overflow:auto">';
-if(!ch.length)h+='<div class="muted">Пока пусто.</div>';
-ch.forEach(function(x){h+='<div style="margin:8px 0;text-align:'+(x.from==='trainer'?'right':'left')+'"><span class="badge" style="background:'+(x.from==='trainer'?'#2a3a6b':'#2c4a3a')+';color:#d6deee;white-space:normal">'+esc(x.text)+'</span><div class="muted" style="font-size:11px">'+new Date(x.ts).toLocaleTimeString()+'</div></div>'});
-h+='</div><div class="row"><input id="chatIn" placeholder="Сообщение клиенту" style="flex:1;margin-top:0"><button class="btn" onclick="sendTMsg()">Отправить</button></div></div>';
-qsel('app').innerHTML=h;var b=qsel('chatBox');if(b)b.scrollTop=b.scrollHeight}
-function sendTMsg(){var t=qsel('chatIn').value.trim();if(!t||!chatSel)return;pushChat(chatSel,'trainer',t);render()}
-
-render();
+/* --- render --- */
+function rerender(){ render(); }
+function render(){
+  document.title=CFG.appName+' — Тренер';
+  var el=document.getElementById('app');
+  if(!user){ el.innerHTML = '<div class="login"><h1>'+esc(CFG.appName)+'</h1><p class="mut">Кабинет тренера</p><label>Логин</label><input id="luser" value="trainer"><label>Пароль</label><input id="lpass" type="password" onkeydown="if(event.key===\'Enter\')login()"><button onclick="login()">Войти</button></div>'; return; }
+  var nav=[['dash','📊 Дашборд'],['clients','👥 Клиенты'],['schedule','📅 Расписание'],['checks','✅ Проверки'],['finance','💰 Финансы'],['shop','🎁 Лавка'],['settings','⚙️ Настройки']];
+  var h='';
+  if(tab==='dash') h=dashboard();
+  else if(tab==='clients') h=clientsList();
+  else if(tab==='client') h=clientCard();
+  else if(tab==='schedule') h=schedule();
+  else if(tab==='checks') h=checks();
+  else if(tab==='finance') h=finance();
+  else if(tab==='shop') h=shop();
+  else if(tab==='settings') h=settings();
+  el.innerHTML=h;
+  document.querySelectorAll('.nav span').forEach(function(s){ s.classList.toggle('on',s.dataset.t===tab); });
+  drawWeightChart();
+}
 </script></body></html>

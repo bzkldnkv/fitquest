@@ -1,190 +1,328 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FitQuest — Клиент</title><style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0d1321;color:#e8ecf4;min-height:100vh}
-.wrap{max-width:760px;margin:0 auto;padding:16px}
-h1{font-size:26px;margin-bottom:4px}
-.sub{color:#8fa3c8;font-size:14px}
-.card{background:#161d2f;border:1px solid #26304d;border-radius:14px;padding:16px;margin-top:14px}
-.muted{color:#8fa3c8;font-size:13px}
-.btn{background:#4c7dff;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer;font-weight:600}
-.btn.ghost{background:#232c47;color:#d6deee}
-.btn.danger{background:#e5484d}
-.btn.ok{background:#2ea56a}
-.btn.sm{padding:6px 12px;font-size:13px}
-input,textarea,select{width:100%;background:#0e1524;border:1px solid #2c3a55;border-radius:10px;padding:10px;color:#e8ecf4;font-size:15px;margin-top:6px}
-label{display:block;font-size:13px;color:#8fa3c8;margin-top:10px}
-.row{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap}
-.bar{background:#0e1524;border-radius:8px;height:12px;overflow:hidden;margin-top:6px}
-.bar>i{display:block;height:100%;background:#4c7dff;border-radius:8px}
-.bar.g>i{background:#2ea56a}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
-.b-pending{background:#4b3a12;color:#ffd166}
-.b-ok{background:#123f2c;color:#5fd39a}
-.b-no{background:#43161a;color:#ff8b90}
-.tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.tab{background:#232c47;border:none;color:#d6deee;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px}
-.tab.on{background:#4c7dff;color:#fff}
-.q{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #232c47}
-.q:last-child{border-bottom:none}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
-.mwrap{position:fixed;inset:0;background:rgba(5,8,16,.75);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
-.mcard{background:#161d2f;border:1px solid #2c3a5f;border-radius:16px;padding:20px;max-width:460px;width:100%}
-.err{border-color:#e5484d;color:#ff8b90}
-.flash{background:#123f2c;color:#5fd39a;border-radius:10px;padding:10px 14px;margin-top:12px;font-size:14px}
-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
-th,td{text-align:left;padding:8px 6px;border-bottom:1px solid #232c47}
-.mono{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#0e1524;padding:8px 10px;border-radius:8px;word-break:break-all;margin-top:8px}
-.link{color:#7fa7ff;text-decoration:none}
-</style></head><body>
-<div id="app"></div>
-<div id="modalWrap" class="mwrap"><div class="mcard" id="modalCard"></div></div>
-<script>
-seed();
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<link rel="manifest" href='data:application/manifest+json,{"name":"klient.html","short_name":"klient.html","start_url":"./klient.html","display":"standalone","background_color":"%%BG%%","theme_color":"#1976d2","icons":[{"src":"data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><rect width=%27100%27 height=%27100%27 rx=%2720%27 fill=%27%231976d2%27/><text x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27sans-serif%27>FQ</text></svg>","sizes":"any","type":"image/svg+xml"}]}' />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>FitQuest — Клиент</title><style>
+:root{ --bg:#f2f3f7; --panel:#fff; --text:#1c1e26; --mut:#8a8fa3; --acc:#2962ff; --line:#e6e8ef; --ok:#1a9e55; --red:#d94343; --bar:#2962ff; }
+[data-theme=dark]{ --bg:#0f1117; --panel:#1a1d28; --text:#e8eaf2; --mut:#8a8fa3; --acc:#4f83ff; --line:#262a38; --bar:#4f83ff; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font:15px -apple-system,'Segoe UI',Roboto,sans-serif;}
+header{background:var(--panel);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+header b{font-size:17px;}
+#themeBtn{background:none;border:none;font-size:20px;cursor:pointer;}
+main{max-width:640px;margin:0 auto;padding:14px 14px 80px;}
+h2{font-size:20px;margin:14px 0 10px;}
+label{display:block;font-size:12px;color:var(--mut);margin:8px 0 4px;}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font-size:15px;margin-bottom:6px;}
+button{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;margin:4px 6px 4px 0;}
+button.danger{background:var(--red);}
+button.ghost{background:var(--line);color:var(--text);}
+.card{background:var(--panel);border-radius:14px;padding:14px;margin:8px 0;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.panel{background:var(--panel);border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.mut{color:var(--mut);font-size:13px;}
+.big{font-size:26px;font-weight:700;}
+.cards4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}
+.cards4 .card{margin:0;}
+.row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);gap:8px;font-size:14px;cursor:pointer;}
+.row:last-child{border-bottom:none;}
+.row:hover{opacity:.85;}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:8px;background:var(--line);color:var(--mut);}
+.tag.red{background:#fdecea;color:#c0392b;}
+.tag.ok{background:#e6f6ec;color:#1a7f4b;}
+.delta.up{color:var(--ok);font-size:12px;} .delta.down{color:var(--red);font-size:12px;}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0;}
+.bar>div{height:100%;background:var(--bar);border-radius:4px;transition:width .3s;}
+.filters{display:flex;gap:8px;margin:10px 0;align-items:center;}
+.filters input,.filters select{flex:1;margin:0;}
+.tabsm{display:flex;gap:6px;overflow-x:auto;margin:10px 0;padding:4px;background:var(--panel);border-radius:12px;}
+.tabsm span{padding:7px 14px;border-radius:9px;cursor:pointer;font-size:14px;white-space:nowrap;color:var(--mut);}
+.tabsm span.on{background:var(--acc);color:#fff;}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--panel);display:flex;justify-content:space-around;padding:6px 0 10px;box-shadow:0 -2px 8px rgba(0,0,0,.08);z-index:10;}
+.nav span{font-size:11px;cursor:pointer;color:var(--mut);padding:4px 8px;border-radius:8px;text-align:center;}
+.nav span.on{color:var(--acc);font-weight:700;}
+.login{max-width:400px;margin:20px auto;}
+.chat .msgs{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.msg{background:var(--line);border-radius:12px;padding:8px 12px;max-width:85%;align-self:flex-start;font-size:14px;}
+.msg.me{background:var(--acc);color:#fff;align-self:flex-end;}
+.msg.me .mut{color:rgba(255,255,255,.7);}
+.chatrow{display:flex;gap:8px;margin-top:10px;}
+.chatrow input{flex:1;margin:0;}
+.chatrow button{margin:0;padding:10px 14px;}
+.switch{position:relative;display:inline-block;width:44px;height:24px;vertical-align:middle;}
+.switch input{opacity:0;width:0;height:0;}
+.switch i{position:absolute;inset:0;background:var(--line);border-radius:12px;transition:.2s;}
+.switch i:before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;left:3px;top:3px;background:#fff;transition:.2s;}
+.switch input:checked+i{background:var(--ok);}
+.switch input:checked+i:before{left:23px;}
+canvas{max-width:100%;}
+</style></head><body><header><b>klient.html</b><button id="themeBtn" onclick="cycleTheme()">🌗</button></header><main id="app"></main><div class="nav" id="clnav"></div><script>var NAVS=[["quests","🎯","Квесты"],["schedule","📅","Расписание"],["shop","🎁","Лавка"],["prog","📈","Прогресс"],["chat","💬","Чат"]];function buildNav(){var n=document.getElementById("clnav");n.innerHTML=NAVS.map(function(x){return '<span data-t="'+x[0]+'" onclick="tab=\''+x[0]+'\';render()">'+x[1]+"<br>"+x[2]+"</span>";}).join("");}window.addEventListener("load",function(){applyTheme();buildNav();var s=localStorage.getItem(SESSION_KEY);if(s&&DB.users[s]&&DB.users[s].role==="client")USER_KEY=s;render();});</script><script>
+/* ===== FitQuest core ===== */
+window.__fq_error = null;
+window.addEventListener('error', function(e){
+  try{
+    var d = document.getElementById('errbox');
+    if(!d){ d = document.createElement('div'); d.id='errbox';
+      d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;font:12px monospace;padding:10px;white-space:pre-wrap;max-height:40vh;overflow:auto;';
+      (document.body||document.documentElement).appendChild(d);}
+    d.textContent += 'ERROR: '+e.message+' @ line '+e.lineno+'\n';
+  }catch(_){}
+});
 
-function qsel(id){return document.getElementById(id)}
-function load(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function esc(s){return String(s===null||s===undefined?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]})}
-function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function yesterday(){var d=new Date(Date.now()-86400000);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
-function users(){return load('fq_users',[])}
-function me(){var s=load('fq_session',null);if(!s)return null;return users().find(function(x){return x.u===s})||null}
-function logout(){save('fq_session',null);render()}
-function cdata(u){return load('fq_c_'+u,{xp:0,streak:0,lastDone:'',steps:0,sthist:[],blockDone:0,discount:10})}
-function saveC(u,c){save('fq_c_'+u,c)}
-function pushChat(clientU,from,text){var k='fq_chat_'+clientU;var ch=load(k,[]);ch.push({from:from,text:text,ts:Date.now()});save(k,ch)}
-var _flash='';
-function flash(t){_flash=t;render()}
-function openModal(title,html){var w=qsel('modalWrap');qsel('modalCard').innerHTML='<h3>'+esc(title)+'</h3>'+html+'<div class="row"><button class="btn ghost" onclick="closeModal()">Отмена</button></div>';w.style.display='flex'}
-function closeModal(){qsel('modalWrap').style.display='none';qsel('modalCard').innerHTML=''}
-function copyText(t){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}try{navigator.clipboard.writeText(t)}catch(e){}document.body.removeChild(ta);flash('Скопировано')}
-function seed(){var u=users();if(u.length===0){u.push({u:'trainer',p:'1234',role:'trainer',name:'Демо-тренер',code:'FIT-7K2Q'});u.push({u:'client',p:'1234',role:'client',name:'Демо-клиент',trainer:'trainer'});save('fq_users',u)}}
-function authBlock(kind){return '<div class="wrap"><h1>FitQuest</h1><div class="sub">'+(kind==='client'?'Приложение клиента':'Кабинет тренера')+'</div>'+
-'<div class="row" style="margin-top:16px"><button class="btn sm '+(authTab==='login'?'':'ghost')+'" onclick="authTab=\'login\';render()">Вход</button>'+
-'<button class="btn sm '+(authTab==='reg'?'':'ghost')+'" onclick="authTab=\'reg\';render()">Регистрация</button></div><div id="authForm"></div></div>'}
-var authTab='login';
-window.addEventListener('click',function(e){var w=qsel('modalWrap');if(w&&e.target===w)closeModal()});
+var FIREBASE_CONFIG = { apiKey:"", authDomain:"", databaseURL:"", projectId:"", appId:"" };
+var CFG_KEY='fq_cfg', DATA_KEY='fq_data', SESSION_KEY='fq_session', THEME_KEY='fq_theme';
 
-var QKEYS=[['breakfast','Завтрак'],['lunch','Обед'],['dinner','Ужин'],['water','Вода (2 л)'],['steps','Шаги (10 000)'],['training','Тренировка']];
-var LVL=['','Новичок','Ученик','Боец','Атлет','Воин','Легенда','Титан'];
-function lvlNum(xp){return Math.min(7,1+Math.floor(xp/100))}
-var REWARDS=[{id:'cardio1',t:'Минус кардио: одно занятие',c:60,d:'Тренер уберёт одно кардио из плана'},
-{id:'cardioHalf',t:'Неделя кардио в половине объёма',c:150,d:'Кардио на этой неделе — вполовину'},
-{id:'cheat',t:'День читмила',c:100,d:'Один свободный день питания'}];
-var REPMAP={breakfast:'Завтрак',lunch:'Обед',dinner:'Ужин',water:'Вода',steps:'Шаги',training:'Тренировка'};
-var view='main',chatSel='trainer';
-var qInvite=new URLSearchParams(location.search).get('invite')||'';
-var qLogin=new URLSearchParams(location.search).get('login')||'';
+var DEF_CFG = {
+  appName:'FitQuest', inviteCode:'FIT2026',
+  discountHalf:10, discountFull:15, blockLen:42,
+  xpTrain:50, xpFood:30, xpHabit:20, streakBonus:20, streakEvery:3,
+  warnDays:5,
+  shop:[{id:'s1',name:'Скидка 5%',cost:200},{id:'s2',name:'Фитнес-браслет',cost:1500},{id:'s3',name:'Бесплатная персоналка',cost:800}],
+  tariffs:[{id:'t1',name:'Индивидуальная',price:2500},{id:'t2',name:'Онлайн',price:1800}]
+};
 
-function questState(u,qk){var reps=load('fq_reports',[]).filter(function(r){return r.client===u&&r.quest===qk&&r.date===today()});
-if(reps.some(function(r){return r.status==='approved'}))return 'approved';
-if(reps.some(function(r){return r.status==='pending'}))return 'pending';
-return 'none'}
+function load(k,def){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+var CFG = Object.assign({}, DEF_CFG, load(CFG_KEY,{}));
+var DB = load(DATA_KEY,null);
+if(!DB){
+  DB = { users:{ trainer:{role:'trainer',pass:'1234'} }, sessions:[], reports:[], chats:[], events:[], payments:[], purchases:[], measures:[], nextId:1 };
+  seedDemo();
+}
+function uid(){ return 'x'+(DB.nextId++)+'_'+Date.now().toString(36); }
+function saveDB(){ save(DATA_KEY,DB); }
 
+function seedDemo(){
+  DB.users['anna']={role:'client',pass:'1234',name:'Анна Смирнова',phone:'+7 900 111-22-33',code:'FIT2026',joined:Date.now()-86400000*30,notes:'',tags:['похудение'],subUntil:Date.now()+86400000*20,subLeft:12,frozen:false,blockLen:21,xp:420,streak:2,lastActive:Date.now()-86400000*2,blockDone:5,discount:'—'};
+  DB.users['ivan']={role:'client',pass:'1234',name:'Иван Петров',phone:'+7 900 444-55-66',code:'FIT2026',joined:Date.now()-86400000*10,notes:'',tags:['набор массы'],subUntil:Date.now()+86400000*40,subLeft:25,frozen:false,blockLen:42,xp:150,streak:0,lastActive:Date.now()-86400000*7,blockDone:2,discount:'—'};
+  DB.users.anna.quests=[
+    {id:'q1',name:'Тренировка в зале',desc:'Силовая, 60 минут',type:'train',xp:50,on:true},
+    {id:'q2',name:'Норма белка',desc:'1,6 г на кг веса',type:'food',xp:30,on:true},
+    {id:'q3',name:'10 000 шагов',desc:'Ежедневно',type:'habit',xp:20,on:true}];
+  DB.users.ivan.quests=[
+    {id:'q4',name:'Тренировка верх тела',desc:'Жим, тяга, 60 минут',type:'train',xp:50,on:true},
+    {id:'q5',name:'Профицит калорий',desc:'+300 ккал к норме',type:'food',xp:30,on:true}];
+  var t=Date.now();
+  DB.events.push({id:uid(),title:'Пилатес и укрепление спины',type:'group',when:t+86400000,cap:8,price:900,signed:['anna','ivan']});
+  DB.events.push({id:uid(),title:'Персоналка: Анна',type:'pt',when:t+86400000*2,cap:1,price:2500,signed:['anna'],paid:{anna:true}});
+  DB.reports.push({id:uid(),user:'anna',quest:'Тренировка в зале',text:'Сделала 3х15, тяжело но норм',ts:t-3600000,status:'pending'});
+  DB.payments.push({id:uid(),user:'anna',amount:2500,tariff:'Индивидуальная',ts:t-86400000*3,event:null});
+  DB.measures.push({id:uid(),user:'anna',weight:64.5,waist:74,ts:t-86400000*20});
+  DB.measures.push({id:uid(),user:'anna',weight:63.1,waist:72,ts:t-86400000*5});
+  saveDB();
+}
+
+/* ===== theme ===== */
+function applyTheme(){
+  var m=localStorage.getItem(THEME_KEY)||'auto';
+  var dark;
+  if(m==='dark') dark=true; else if(m==='light') dark=false; else { var h=new Date().getHours(); dark=(h<8||h>=20); }
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  var b=document.getElementById('themeBtn');
+  if(b) b.textContent = m==='auto' ? '🌗' : (dark?'🌙':'☀️');
+}
+function cycleTheme(){
+  var m=localStorage.getItem(THEME_KEY)||'auto';
+  m = m==='light'?'dark':(m==='dark'?'auto':'light');
+  localStorage.setItem(THEME_KEY,m); applyTheme();
+  toast('Оформление: '+(m==='light'?'светлое':m==='dark'?'тёмное':'авто'));
+}
+
+/* ===== ui helpers ===== */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function fmtMoney(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ')+' ₽'; }
+function fmtDate(ts){ var d=new Date(ts); return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'}); }
+function fmtDT(ts){ var d=new Date(ts); return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); }
+function toast(msg){
+  var t=document.createElement('div'); t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;z-index:9999;opacity:0;transition:opacity .2s;';
+  document.body.appendChild(t); requestAnimationFrame(function(){t.style.opacity=1;});
+  setTimeout(function(){ t.style.opacity=0; setTimeout(function(){t.remove();},300); },2200);
+}
+function daysBetween(a,b){ return Math.floor((b-a)/86400000); }
+
+/* ===== CLIENT APP ===== */
+var USER_KEY=null, tab='quests';
+
+function login(){
+  var u=document.getElementById('luser').value.trim().toLowerCase(), p=document.getElementById('lpass').value;
+  var rec=DB.users[u];
+  if(rec && rec.role==='client' && rec.pass===p){ USER_KEY=u; save(SESSION_KEY,u); DB.users[u].lastActive=Date.now(); saveDB(); render(); }
+  else toast('Неверный логин или пароль');
+}
+function register(){
+  var n=document.getElementById('rname').value.trim();
+  var code=document.getElementById('rcode').value.trim().toUpperCase();
+  var u=document.getElementById('ruser').value.trim().toLowerCase();
+  var p=document.getElementById('rpass').value;
+  if(!n||!u||!p){ toast('Заполните все поля'); return; }
+  if(code!==String(CFG.inviteCode).toUpperCase()){ toast('Неверный код тренера'); return; }
+  if(DB.users[u]){ toast('Логин занят'); return; }
+  DB.users[u]={role:'client',pass:p,name:n,phone:'',code:CFG.inviteCode,joined:Date.now(),notes:'',tags:[],subUntil:Date.now()+86400000*30,subLeft:16,frozen:false,blockLen:CFG.blockLen,xp:0,streak:0,lastActive:Date.now(),blockDone:0,discount:'—',quests:[]};
+  saveDB(); USER_KEY=u; save(SESSION_KEY,u); render();
+}
+function logout(){ USER_KEY=null; save(SESSION_KEY,null); render(); }
+function me(){ return DB.users[USER_KEY]; }
+
+/* --- quests --- */
+function questsView(){
+  var c=me();
+  var h='<h2>Квесты</h2>';
+  h+='<div class="panel"><div class="row"><span>Серия</span><span>🔥 '+(c.streak||0)+' дн.</span></div>';
+  h+='<div class="row"><span>XP</span><span>'+(c.xp||0)+'</span></div>';
+  h+='<div class="row"><span>Блок</span><span>'+(c.blockDone||0)+'/'+(c.blockLen||CFG.blockLen)+'</span></div>';
+  h+='<div class="bar"><div style="width:'+Math.min(100,100*(c.blockDone||0)/(c.blockLen||CFG.blockLen))+'%"></div></div>';
+  if(c.discount&&c.discount!=='—') h+='<div class="tag ok">'+esc(c.discount)+'</div>';
+  h+='</div>';
+  var qs=(c.quests||[]).filter(function(q){return q.on;});
+  qs.forEach(function(q){
+    var sent=DB.reports.some(function(r){return r.user===USER_KEY&&r.quest===q.name&&r.status==='pending';});
+    h+='<div class="card"><b>'+esc(q.name)+'</b> <span class="tag">'+({train:'тренировка',food:'питание',habit:'привычка'})[q.type]+'</span> <span class="tag">+'+q.xp+' XP</span>';
+    h+='<div class="mut">'+esc(q.desc||'')+'</div>';
+    h+= sent?'<span class="tag">⏳ на проверке</span>':'<button onclick="report(\''+q.id+'\')">Отчитаться</button>';
+    h+='</div>';
+  });
+  if(!qs.length) h+='<p class="mut">Тренер ещё не назначил вам квесты</p>';
+  return h;
+}
+function report(qid){
+  var q=me().quests.filter(function(x){return x.id===qid;})[0]; if(!q)return;
+  var text=prompt('Комментарий по квесту «'+q.name+'»:');
+  if(text===null) return;
+  DB.reports.push({id:uid(),user:USER_KEY,quest:q.name,xp:q.xp,text:text,ts:Date.now(),status:'pending'});
+  me().lastActive=Date.now(); saveDB(); toast('Отчёт отправлен на проверку'); render();
+}
+
+/* --- schedule --- */
+function schedView(){
+  var c=me();
+  var evs=DB.events.filter(function(e){return e.when>Date.now()-86400000;}).sort(function(a,b){return a.when-b.when;});
+  var h='<h2>Расписание</h2>';
+  h+='<div class="panel"><div class="row"><span>Абонемент до</span><span>'+fmtDate(c.subUntil||Date.now())+'</span></div>';
+  h+='<div class="row"><span>Осталось посещений</span><span>'+(c.frozen?'заморожен':(c.subLeft||0))+'</span></div></div>';
+  evs.forEach(function(e){
+    var mine=(e.signed||[]).indexOf(USER_KEY)>=0;
+    var full=(e.signed||[]).length>=(e.cap||1);
+    var d=new Date(e.when);
+    h+='<div class="card"><b>'+esc(e.title)+'</b> <span class="tag">'+(e.type==='pt'?'персональная':'групповая')+'</span>';
+    h+='<div class="mut">'+d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' · '+fmtMoney(e.price||0)+'</div>';
+    h+='<div class="mut">Мест: '+((e.cap||1)-(e.signed||[]).length)+'</div>';
+    if(e.type==='group'){
+      if(mine) h+='<button onclick="cancelBook(\''+e.id+'\')">Отменить запись</button>';
+      else if(full) h+='<span class="tag red">мест нет</span>';
+      else h+='<button onclick="book(\''+e.id+'\')">Записаться</button>';
+    } else if(mine) h+='<span class="tag ok">вы записаны</span>';
+    h+='</div>';
+  });
+  if(!evs.length) h+='<p class="mut">Занятий пока нет</p>';
+  return h;
+}
+function book(id){ var e=DB.events.filter(function(x){return x.id===id;})[0]; e.signed=e.signed||[]; e.signed.push(USER_KEY); me().subLeft=Math.max(0,(me().subLeft||0)-1); saveDB(); toast('Вы записаны'); render(); }
+function cancelBook(id){ var e=DB.events.filter(function(x){return x.id===id;})[0]; e.signed=(e.signed||[]).filter(function(u){return u!==USER_KEY;}); me().subLeft=(me().subLeft||0)+1; saveDB(); toast('Запись отменена'); render(); }
+
+/* --- shop --- */
+function shopView(){
+  var c=me();
+  var h='<h2>Лавка наград</h2><div class="panel"><div class="row"><span>Ваш баланс</span><span><b>'+(c.xp||0)+' XP</b></span></div></div>';
+  CFG.shop.forEach(function(s){
+    var can=(c.xp||0)>=s.cost;
+    h+='<div class="card"><b>'+esc(s.name)+'</b><div class="mut">'+s.cost+' XP</div>';
+    h+= can?'<button onclick="buy(\''+s.id+'\')">Купить</button>':'<span class="mut">не хватает '+ (s.cost-(c.xp||0)) +' XP</span>';
+    h+='</div>';
+  });
+  var bought=(DB.purchases||[]).filter(function(p){return p.user===USER_KEY;});
+  if(bought.length){ h+='<div class="panel"><b>Мои награды</b>'; bought.forEach(function(p){ h+='<div class="row"><span>'+esc((CFG.shop.filter(function(s){return s.id===p.shop;})[0]||{}).name||'награда')+'</span><span class="tag ok">получено</span></div>'; }); h+='</div>'; }
+  return h;
+}
+function buy(id){
+  var s=CFG.shop.filter(function(x){return x.id===id;})[0]; if(!s)return;
+  var c=me();
+  if((c.xp||0)<s.cost){ toast('Не хватает XP'); return; }
+  if(!confirm('Купить «'+s.name+'» за '+s.cost+' XP?'))return;
+  c.xp-=s.cost;
+  DB.purchases.push({id:uid(),user:USER_KEY,shop:id,ts:Date.now()}); saveDB();
+  toast('Куплено! Покажите тренеру'); render();
+}
+
+/* --- progress --- */
+function progView(){
+  var c=me();
+  var h='<h2>Прогресс</h2>';
+  h+='<div class="panel"><b>Показатели</b>';
+  h+='<div class="row"><span>Всего XP</span><span><b>'+(c.xp||0)+'</b></span></div>';
+  h+='<div class="row"><span>Серия</span><span>🔥 '+(c.streak||0)+' дн.</span></div>';
+  h+='<div class="row"><span>Блок</span><span>'+(c.blockDone||0)+'/'+(c.blockLen||CFG.blockLen)+'</span></div>';
+  h+='<div class="row"><span>Скидка</span><span>'+esc(c.discount||'—')+'</span></div></div>';
+  var ms=(DB.measures||[]).filter(function(m){return m.user===USER_KEY;}).sort(function(a,b){return a.ts-b.ts;});
+  if(ms.length>1) h+='<div class="panel"><b>График веса</b><canvas id="wchart" width="320" height="160"></canvas></div>';
+  var mine=DB.reports.filter(function(r){return r.user===USER_KEY;}).sort(function(a,b){return b.ts-a.ts;});
+  h+='<div class="panel"><b>История отчётов</b>';
+  mine.slice(0,15).forEach(function(r){
+    h+='<div class="row"><span>'+esc(r.quest)+' · '+fmtDate(r.ts)+'</span><span class="tag '+(r.status==='approved'?'ok':r.status==='rejected'?'red':'')+'">'+(r.status==='approved'?'✓':r.status==='rejected'?'✕':'⏳')+'</span></div>';
+  });
+  if(!mine.length) h+='<div class="mut">Пока пусто</div>';
+  h+='</div>';
+  return h;
+}
+function drawWeightChart(){
+  var cv=document.getElementById('wchart'); if(!cv)return;
+  var ms=(DB.measures||[]).filter(function(m){return m.user===USER_KEY;}).sort(function(a,b){return a.ts-b.ts;});
+  if(!ms.length)return;
+  var ctx=cv.getContext('2d'),W=cv.width,H=cv.height,pad=20;
+  var ws=ms.map(function(m){return m.weight;});
+  var mn=Math.min.apply(null,ws)-1,mx=Math.max.apply(null,ws)+1;
+  ctx.clearRect(0,0,W,H);
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  ctx.strokeStyle=dark?'#556':'#ccc'; ctx.fillStyle=dark?'#4fc3f7':'#1976d2';
+  ws.forEach(function(w,i){
+    var x=pad+(W-2*pad)*(ws.length===1?0.5:i/(ws.length-1));
+    var y=H-pad-(H-2*pad)*((w-mn)/(mx-mn));
+    if(i>0){ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(x,y);ctx.stroke();}
+    ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill();
+    var px=x,py=y;
+  });
+  ctx.fillText(String(Math.round(mx-1)),4,14); ctx.fillText(String(Math.round(mn+1)),4,H-6);
+}
+
+/* --- chat --- */
+function chatBlock(peer,role){
+  var meK=USER_KEY;
+  var msgs=(DB.chats||[]).filter(function(m){ return (m.from===meK&&m.to===peer)||(m.from===peer&&m.to===meK); }).sort(function(a,b){return a.ts-b.ts;});
+  var h='<div class="panel chat"><div class="msgs">';
+  msgs.forEach(function(m){ h+='<div class="msg '+(m.from===meK?'me':'')+'"><b>'+(m.from===meK?'Вы':'Тренер')+'</b> '+esc(m.text)+'<div class="mut">'+fmtDT(m.ts)+'</div></div>'; });
+  if(!msgs.length) h+='<div class="mut">Сообщений пока нет</div>';
+  h+='</div><div class="chatrow"><input id="chat_'+peer+'" placeholder="Сообщение…" onkeydown="if(event.key===\'Enter\')sendChat(\''+peer+'\')"><button onclick="sendChat(\''+peer+'\')">➤</button></div></div>';
+  return h;
+}
+function sendChat(peer){
+  var inp=document.getElementById('chat_'+peer); var t=inp.value.trim(); if(!t)return;
+  DB.chats=DB.chats||[];
+  DB.chats.push({id:uid(),from:USER_KEY,to:'trainer',text:t,ts:Date.now()});
+  saveDB(); inp.value=''; render();
+}
+
+/* --- render --- */
+function rerender(){ render(); }
 function render(){
-try{
-var app=qsel('app'),m=me();
-if(!m){renderAuth();return}
-if(view==='shop')renderShop();else if(view==='chat')renderChat();else renderMain();
-}catch(e){qsel('app').innerHTML='<div class="wrap"><div class="card err">Ошибка: '+esc(e.message)+'</div></div>'}}
-
-function renderAuth(){
-var h=authBlock('client');
-var trainerOfInvite=null;
-if(qInvite){var t=users().find(function(x){return x.role==='trainer'&&x.code===qInvite});trainerOfInvite=t}
-h+='<div class="wrap">';
-if(qInvite&&trainerOfInvite)h+='<div class="flash">Вас приглашает тренер '+esc(trainerOfInvite.name)+'. Задайте пароль — и вы в игре.</div>';
-if(qInvite&&!trainerOfInvite)h+='<div class="card err">Ссылка недействительна: тренер с таким кодом не найден. Зарегистрируйтесь по коду приглашения вручную.</div>';
-h+='</div>';
-qsel('app').innerHTML=h;
-if(authTab==='login'){
-qsel('authForm').innerHTML='<div class="card"><label>Логин</label><input id="lLogin"><label>Пароль</label><input id="lPass" type="password"><div class="row"><button class="btn" onclick="doLogin()">Войти</button></div><div class="muted" style="margin-top:10px">Демо: client / 1234</div></div>';
-}else{
-qsel('authForm').innerHTML='<div class="card"><label>Имя</label><input id="rName" value="'+esc(qLogin?'':'')+'"><label>Логин</label><input id="rLogin" value="'+esc(qLogin)+'"><label>Пароль</label><input id="rPass" type="password"><label>Код приглашения тренера</label><input id="rCode" value="'+esc(qInvite)+'"><div class="row"><button class="btn" onclick="doReg()">Создать аккаунт</button></div></div>'}}
-
-function doLogin(){var u=qsel('lLogin').value.trim(),p=qsel('lPass').value;
-var f=users().find(function(x){return x.u===u&&x.p===p&&x.role==='client'});
-if(!f){flash('Неверный логин или пароль');return}
-save('fq_session',u);_flash='';render()}
-
-function doReg(){var n=qsel('rName').value.trim(),u=qsel('rLogin').value.trim(),p=qsel('rPass').value,code=qsel('rCode').value.trim();
-if(!n||!u||!p||!code){flash('Заполните все поля');return}
-var us=users();
-if(us.some(function(x){return x.u===u})){flash('Такой логин уже занят');return}
-var t=us.find(function(x){return x.role==='trainer'&&x.code===code});
-if(!t){flash('Код приглашения не найден — проверьте у тренера');return}
-us.push({u:u,p:p,role:'client',name:n,trainer:t.u});save('fq_users',us);
-save('fq_session',u);_flash='Добро пожаловать, '+n+'!';render()}
-
-function renderMain(){var m=me(),c=cdata(m.u),ln=lvlNum(c.xp);
-var t=users().find(function(x){return x.u===m.trainer});
-var chal=load('fq_challenge_'+(m.trainer||''),'');
-var done=QKEYS.filter(function(q){return questState(m.u,q[0])==='approved'}).length;
-var h='<div class="wrap"><div class="top"><div><b>'+esc(m.name)+'</b><div class="sub">Уровень '+ln+': '+LVL[ln]+' · '+c.xp+' XP</div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
-if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
-h+='<div class="card"><b>Опыт до следующего уровня</b><div class="bar"><i style="width:'+(c.xp%100)+'%"></i></div>'+
-'<div class="row"><span class="muted">Серия дней: <b>'+c.streak+'</b> 🔥</span><span class="muted">Скидка на блок: <b>'+c.discount+'%</b></span></div></div>';
-h+='<div class="card"><label style="margin-top:0">Шаги за сегодня: <b>'+c.steps+'</b> / 10000</label><div class="bar g"><i style="width:'+Math.min(100,Math.round(c.steps/100))+'%"></i></div>'+
-'<div class="row"><input id="stepsIn" type="number" placeholder="Сколько шагов прошёл" style="flex:1;margin-top:0"><button class="btn sm" onclick="setSteps()">Записать</button></div></div>';
-if(chal)h+='<div class="card"><b>Челлендж недели от тренера</b><div style="margin-top:6px">'+esc(chal)+'</div></div>';
-h+='<div class="card"><b>Квесты дня ('+done+' из '+QKEYS.length+')</b>';
-QKEYS.forEach(function(q){var st=questState(m.u,q[0]);
-var badge=st==='approved'?'<span class="badge b-ok">✔ засчитано</span>':st==='pending'?'<span class="badge b-pending">⏳ ждёт тренера</span>':'<span class="badge" style="background:#232c47;color:#8fa3c8">не выполнено</span>';
-h+='<div class="q"><div><b>'+q[1]+'</b><div class="muted">'+badge+'</div></div>'+(st==='approved'?'':'<button class="btn sm" onclick="reportModal(\''+q[0]+'\')">Отчёт</button>')+'</div>'});
-h+='<div class="row"><button class="btn ok" onclick="finishDay()">Завершить день</button></div></div>';
-h+='<div class="tabs"><button class="tab on" onclick="view=\'main\';render()">Главная</button><button class="tab" onclick="view=\'shop\';render()">Лавка наград</button><button class="tab" onclick="view=\'chat\';render()">Чат с тренером</button></div></div>';
-qsel('app').innerHTML=h}
-
-function renderShop(){var m=me(),c=cdata(m.u),purch=load('fq_purchases',[]).filter(function(p){return p.client===m.u});
-var h='<div class="wrap"><div class="top"><div><b>Лавка наград</b><div class="sub">У вас '+c.xp+' XP</div></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div>';
-if(_flash)h+='<div class="flash">'+esc(_flash)+'</div>';
-h+='<div class="card">';
-REWARDS.forEach(function(r){var mine=purch.find(function(p){return p.rid===r.id&&p.status==='pending'});
-h+='<div class="q"><div><b>'+r.t+'</b><div class="muted">'+r.d+' · '+r.c+' XP</div></div>'+(mine?'<span class="badge b-pending">⏳ ждёт тренера</span>':'<button class="btn sm" onclick="buy(\''+r.id+'\')">Купить</button>')+'</div>'});
-h+='</div>';
-if(purch.length){h+='<div class="card"><b>Ваши заявки</b>';purch.slice().reverse().forEach(function(p){h+='<div class="q"><div>'+esc(p.title)+'<div class="muted">'+new Date(p.ts).toLocaleString()+'</div></div><span class="badge '+(p.status==='approved'?'b-ok':p.status==='rejected'?'b-no':'b-pending')+'">'+(p.status==='approved'?'✔ подтверждено':p.status==='rejected'?'✘ отказ':'⏳ ждёт тренера')+'</span></div>'});h+='</div>'}
-h+='<div class="tabs"><button class="tab" onclick="view=\'main\';render()">Главная</button><button class="tab on" onclick="view=\'shop\';render()">Лавка наград</button><button class="tab" onclick="view=\'chat\';render()">Чат с тренером</button></div></div>';
-qsel('app').innerHTML=h}
-
-function buy(id){var r=REWARDS.find(function(x){return x.id===id}),m=me(),c=cdata(m.u);
-if(c.xp<r.c){flash('Не хватает XP — нужно '+r.c);return}
-c.xp-=r.c;saveC(m.u,c);
-var p=load('fq_purchases',[]);p.push({id:Date.now(),client:m.u,rid:r.id,title:r.t,cost:r.c,status:'pending',ts:Date.now()});save('fq_purchases',p);
-pushChat(m.u,'client','Хочу получить награду: '+r.t);
-flash('Заявка отправлена тренеру на подтверждение')}
-
-function renderChat(){var m=me(),ch=load('fq_chat_'+m.u,[]);
-var h='<div class="wrap"><div class="top"><div><b>Чат с тренером</b></div><button class="btn ghost sm" onclick="logout()">Выйти</button></div><div class="card" id="chatBox" style="max-height:50vh;overflow:auto">';
-if(!ch.length)h+='<div class="muted">Пока пусто. Напишите тренеру первое сообщение.</div>';
-ch.forEach(function(x){h+='<div style="margin:8px 0;text-align:'+(x.from==='client'?'right':'left')+'"><span class="badge" style="background:'+(x.from==='client'?'#2a3a6b':'#2c4a3a')+';color:#d6deee;white-space:normal">'+esc(x.text)+'</span><div class="muted" style="font-size:11px">'+new Date(x.ts).toLocaleTimeString()+'</div></div>'});
-h+='</div><div class="row"><input id="chatIn" placeholder="Сообщение тренеру" style="flex:1;margin-top:0"><button class="btn" onclick="sendMsg()">Отправить</button></div>';
-h+='<div class="tabs"><button class="tab" onclick="view=\'main\';render()">Главная</button><button class="tab" onclick="view=\'shop\';render()">Лавка наград</button><button class="tab on" onclick="view=\'chat\';render()">Чат</button></div></div>';
-qsel('app').innerHTML=h;var b=qsel('chatBox');b.scrollTop=b.scrollHeight}
-
-function sendMsg(){var t=qsel('chatIn').value.trim();if(!t)return;pushChat(me().u,'client',t);render()}
-
-function reportModal(qk){window._repFile='';
-openModal('Отчёт: '+REPMAP[qk],'<label>Что сделали</label><textarea id="repText" rows="4" placeholder="Например: овсянка с бананом, 150 г"></textarea><label>Фото или скрин (в прототипе сохраняется имя файла)</label><input type="file" id="repFile"><div class="row"><button class="btn" onclick="sendReport(\''+qk+'\')">Отправить тренеру</button></div>');
-qsel('repFile').onchange=function(){window._repFile=(this.files[0]||{}).name||''}}
-
-function sendReport(qk){var t=qsel('repText').value.trim();
-if(!t){flash('Опишите, что сделали');return}
-var reps=load('fq_reports',[]);
-reps.push({id:Date.now(),client:me().u,quest:qk,date:today(),text:t,file:window._repFile||'',status:'pending',ts:Date.now()});
-save('fq_reports',reps);closeModal();flash('Отчёт отправлен — ждите проверки тренера')}
-
-function setSteps(){var v=parseInt(qsel('stepsIn').value,10);if(!v||v<0)return;var m=me(),c=cdata(m.u);
-c.steps=v;c.sthist=(c.sthist||[]).filter(function(x){return x.d!==today()});c.sthist.push({d:today(),v:v});
-if(c.sthist.length>7)c.sthist=c.sthist.slice(-7);saveC(m.u,c);flash('Шаги записаны')}
-
-function finishDay(){var m=me(),c=cdata(m.u),t=today();
-if(c.lastDone===t){flash('Сегодня день уже завершён');return}
-var all=QKEYS.every(function(q){return questState(m.u,q[0])==='approved'});
-if(all){c.streak=(c.lastDone===yesterday())?c.streak+1:1;c.xp+=20;c.lastDone=t;flash('День закрыт! +20 XP, серия '+c.streak+' 🔥')}
-else{c.streak=0;c.lastDone=t;flash('Не все квесты засчитаны — серия сгорела')}
-saveC(m.u,c)}
-
-var client_css_done=true;
-
-render();
+  document.title=CFG.appName+' — Клиент';
+  var el=document.getElementById('app');
+  if(!USER_KEY){
+    var urlCode=new URLSearchParams(location.search).get('code')||'';
+    el.innerHTML='<div class="login"><h1>'+esc(CFG.appName)+'</h1>'+
+      '<div class="panel"><b>Вход</b><label>Логин</label><input id="luser"><label>Пароль</label><input id="lpass" type="password" onkeydown="if(event.key===\'Enter\')login()"><button onclick="login()">Войти</button></div>'+
+      '<div class="panel"><b>Регистрация по коду тренера</b><label>Имя</label><input id="rname"><label>Код тренера</label><input id="rcode" value="'+esc(urlCode)+'"><label>Придумайте логин</label><input id="ruser"><label>Придумайте пароль</label><input id="rpass" type="password"><button onclick="register()">Зарегистрироваться</button></div></div>';
+    return;
+  }
+  var c=me();
+  var nav=[['quests','🎯 Квесты'],['schedule','📅 Расписание'],['shop','🎁 Лавка'],['prog','📈 Прогресс'],['chat','💬 Чат']];
+  var h='';
+  if(tab==='quests') h=questsView();
+  else if(tab==='schedule') h=schedView();
+  else if(tab==='shop') h=shopView();
+  else if(tab==='prog') h=progView();
+  else if(tab==='chat') h=chatBlock('trainer','client');
+  el.innerHTML='<div class="topbar"><b>'+esc(c.name||'')+'</b><span class="mut">'+(c.xp||0)+' XP · 🔥 '+(c.streak||0)+'</span><button class="ghost" onclick="logout()">Выйти</button></div>'+h;
+  document.querySelectorAll('.nav span').forEach(function(s){ s.classList.toggle('on',s.dataset.t===tab); });
+  drawWeightChart();
+}
 </script></body></html>
